@@ -1,0 +1,64 @@
+# Full-stack IMEITrack: PostgreSQL + API + SPA (nginx with /api reverse proxy).
+# From repo root:
+#   docker compose -f infra/docker/docker-compose.yml up --build
+# App: http://localhost  (API proxied at /api/v1/...)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: imeitrack
+    volumes:
+      - imeitrack_pg:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d imeitrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_ENV: development
+      APP_NAME: IMEITrack API
+      API_V1_PREFIX: /api/v1
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/imeitrack
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-docker-dev-only}
+      CORS_ORIGINS: http://localhost,http://127.0.0.1,http://localhost:80,http://localhost:5173,http://localhost:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      # First boot runs Alembic + SQLAlchemy create_all; allow time before marking unhealthy
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/api/v1/health/live >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 90s
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        # Prefer starting after API is up; use service_started so a flaky healthcheck does not block the UI container.
+        condition: service_started
+
+volumes:
+  imeitrack_pg:

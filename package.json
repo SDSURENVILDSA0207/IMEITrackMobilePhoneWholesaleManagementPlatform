@@ -1,0 +1,19 @@
+{
+  "name": "imeitrack",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @imeitrack/web dev\" \"python3 -m uvicorn apps.api.app.main:app --reload --host 0.0.0.0 --port 8000\"",
+    "dev:web": "pnpm --filter @imeitrack/web dev",
+    "dev:api": "python3 -m uvicorn apps.api.app.main:app --reload --host 0.0.0.0 --port 8000",
+    "build": "pnpm -r build",
+    "lint": "pnpm --filter @imeitrack/web lint",
+    "typecheck": "pnpm --filter @imeitrack/web typecheck",
+    "seed:api": "cd apps/api && PYTHONPATH=. python3 -m scripts.seed",
+    "seed:api:force": "cd apps/api && PYTHONPATH=. python3 -m scripts.seed --force"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

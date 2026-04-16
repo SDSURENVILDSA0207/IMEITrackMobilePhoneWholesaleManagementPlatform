@@ -1,0 +1,22 @@
+[project]
+name = "imeitrack-api"
+version = "0.1.0"
+description = "IMEITrack FastAPI backend"
+requires-python = ">=3.9"
+dependencies = [
+  "alembic>=1.16.5",
+  "fastapi>=0.117.1",
+  "passlib[bcrypt]>=1.7.4",
+  "bcrypt==4.0.1",
+  "psycopg2-binary>=2.9.10",
+  "pydantic-settings>=2.11.0",
+  "python-jose[cryptography]>=3.5.0",
+  "python-multipart>=0.0.20",
+  "sqlalchemy>=2.0.43",
+  "uvicorn>=0.36.0"
+]
+
+[tool.uv]
+dev-dependencies = [
+  "pytest>=8.4.2"
+]
