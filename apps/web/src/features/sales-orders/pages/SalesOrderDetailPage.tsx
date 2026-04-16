@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSpinner } from "@/components/ui/PageSpinner";
@@ -128,7 +129,7 @@ export default function SalesOrderDetailPage() {
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-900">
         <h1 className="text-lg font-semibold">Unable to load order</h1>
         <p className="mt-2 text-sm">{error ?? "Unknown error."}</p>
-        <Link to="/sales-orders" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
+        <Link to="/sales-orders" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to list
         </Link>
       </div>
@@ -140,7 +141,7 @@ export default function SalesOrderDetailPage() {
   return (
     <PageContainer className="mx-auto max-w-6xl">
       <div>
-        <Link to="/sales-orders" className="text-sm font-medium text-brand-700 hover:text-brand-600">
+        <Link to="/sales-orders" className={`text-sm font-medium ${textLinkClass}`}>
           ← Sales orders
         </Link>
         <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -172,7 +173,7 @@ export default function SalesOrderDetailPage() {
             {order.customer ? (
               <Link
                 to={`/customers/${order.customer.id}/edit`}
-                className="mt-2 inline-block text-sm text-brand-700 hover:underline"
+                className={`mt-2 inline-block text-sm ${textLinkClass}`}
               >
                 View customer
               </Link>

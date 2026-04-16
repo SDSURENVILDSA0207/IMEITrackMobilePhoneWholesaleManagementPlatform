@@ -10,10 +10,10 @@ export function MobileNav() {
         <NavLink
           key={item.to}
           to={item.to}
-          end={"end" in item ? item.end : false}
+          end={!!item.end}
           className={({ isActive }) =>
             [
-              "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium no-underline transition-colors duration-150",
               isActive
                 ? "bg-brand-100 text-brand-700 ring-1 ring-brand-100"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",

@@ -12,6 +12,8 @@ import { canManagePurchaseOrders } from "@/features/purchase-orders/utils/permis
 import { listSuppliers } from "@/features/suppliers/api";
 import type { Supplier } from "@/features/suppliers/types";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
+import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { textLinkNeutralClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -85,11 +87,7 @@ export default function PurchaseOrdersListPage() {
       header: "PO #",
       className: "font-semibold",
       cell: (po) => (
-        <Link
-          to={`/purchase-orders/${po.id}`}
-          className="text-indigo-600 hover:text-indigo-500"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <Link to={`/purchase-orders/${po.id}`} className={textLinkNeutralClass} onClick={(e) => e.stopPropagation()}>
           {po.po_number}
         </Link>
       ),
@@ -134,10 +132,7 @@ export default function PurchaseOrdersListPage() {
         description="Inbound procurement linked to suppliers."
         action={
           canManage ? (
-            <Link
-              to="/purchase-orders/new"
-              className="inline-flex items-center justify-center rounded-lg border border-brand-600 bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500 hover:border-brand-500"
-            >
+            <Link to="/purchase-orders/new" className={linkPrimaryButtonClassName}>
               New purchase order
             </Link>
           ) : null

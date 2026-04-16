@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { textLinkClass } from "@/components/ui/linkStyles";
+
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { DeviceDetailDrawer } from "@/features/inventory/components/DeviceDetailDrawer";
 import { listDevices, searchDeviceByImei } from "@/features/inventory/api";
@@ -145,7 +147,7 @@ export default function InventoryListPage() {
         d.source_batch ? (
           <Link
             to={`/inventory/batches/${d.source_batch.id}`}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className={`text-sm font-medium ${textLinkClass}`}
             onClick={(e) => e.stopPropagation()}
           >
             {d.source_batch.batch_code}

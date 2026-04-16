@@ -10,6 +10,7 @@ import {
 } from "@/features/suppliers/utils/supplierFormMappers";
 import type { SupplierFormValues } from "@/features/suppliers/schemas/supplierFormSchema";
 import { canManageSuppliers } from "@/features/suppliers/utils/permissions";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 
 export default function SupplierCreatePage() {
@@ -33,7 +34,7 @@ export default function SupplierCreatePage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Your role cannot create suppliers.</p>
-        <Link to="/suppliers" className="mt-4 inline-block text-sm font-semibold text-indigo-700 hover:underline">
+        <Link to="/suppliers" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to suppliers
         </Link>
       </div>
@@ -43,7 +44,7 @@ export default function SupplierCreatePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link to="/suppliers" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <Link to="/suppliers" className={`text-sm font-medium ${textLinkClass}`}>
           ← Suppliers
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">New supplier</h1>

@@ -26,25 +26,25 @@ export function LowStockTable({ threshold, rows, loading }: LowStockTableProps) 
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-amber-100/80 bg-amber-50/20">
-      <table className="min-w-full text-left text-sm">
+    <div className="overflow-x-auto rounded-xl border border-amber-100/60 bg-amber-50/15 ring-1 ring-amber-100/35">
+      <table className="min-w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-amber-100/90 bg-amber-50/50 text-xs font-semibold uppercase tracking-wide text-amber-900/70">
-            <th className="px-4 py-3">Product</th>
-            <th className="px-4 py-3">Storage</th>
-            <th className="px-4 py-3">Color</th>
-            <th className="px-4 py-3 text-right">Sellable units</th>
+          <tr className="border-b border-amber-100/70 bg-amber-50/45 text-xs font-semibold uppercase tracking-wide text-amber-900/65">
+            <th className="px-5 py-4 align-middle">Product</th>
+            <th className="px-5 py-4 align-middle">Storage</th>
+            <th className="px-5 py-4 align-middle">Color</th>
+            <th className="px-5 py-4 text-right align-middle">Sellable units</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-amber-50">
+        <tbody className="divide-y divide-amber-100/45">
           {rows.map((row) => (
-            <tr key={row.product_model_id} className="hover:bg-white/60">
-              <td className="px-4 py-3 font-medium text-slate-900">
+            <tr key={row.product_model_id} className="transition-colors duration-150 hover:bg-amber-50/35">
+              <td className="px-5 py-4 align-middle font-medium text-slate-900">
                 {row.brand} {row.model_name}
               </td>
-              <td className="px-4 py-3 text-slate-700">{row.storage}</td>
-              <td className="px-4 py-3 text-slate-700">{row.color}</td>
-              <td className="px-4 py-3 text-right">
+              <td className="px-5 py-4 align-middle text-slate-600">{row.storage}</td>
+              <td className="px-5 py-4 align-middle text-slate-600">{row.color}</td>
+              <td className="px-5 py-4 text-right align-middle">
                 <span
                   className={`inline-flex min-w-[2rem] justify-end rounded-md px-2 py-0.5 text-sm font-semibold tabular-nums ${
                     row.available_units === 0

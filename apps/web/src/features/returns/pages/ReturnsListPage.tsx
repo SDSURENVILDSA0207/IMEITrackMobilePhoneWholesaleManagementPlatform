@@ -9,6 +9,8 @@ import { RMA_STATUS_LABELS } from "@/features/returns/constants/statusLabels";
 import type { ReturnRequestDetailed, ReturnRequestStatus } from "@/features/returns/types";
 import { RETURN_REQUEST_STATUSES } from "@/features/returns/types";
 import { canCreateReturnRequest } from "@/features/returns/utils/permissions";
+import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -76,7 +78,7 @@ export default function ReturnsListPage() {
       cell: (r) => (
         <Link
           to={`/returns/${r.id}`}
-          className="font-semibold text-indigo-600 hover:text-indigo-500"
+          className={`${textLinkClass} font-semibold`}
           onClick={(e) => e.stopPropagation()}
         >
           #{r.id}
@@ -117,10 +119,7 @@ export default function ReturnsListPage() {
         description="Track return requests against shipped or delivered sales orders."
         action={
           canCreate ? (
-            <Link
-              to="/returns/new"
-              className="inline-flex items-center justify-center rounded-lg border border-brand-600 bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500 hover:border-brand-500"
-            >
+            <Link to="/returns/new" className={linkPrimaryButtonClassName}>
               New return request
             </Link>
           ) : null

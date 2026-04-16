@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSpinner } from "@/components/ui/PageSpinner";
@@ -123,7 +124,7 @@ export default function BatchDetailPage() {
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-900">
         <h1 className="text-lg font-semibold">Unable to load batch</h1>
         <p className="mt-2 text-sm">{error ?? "Unknown error."}</p>
-        <Link to="/inventory" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
+        <Link to="/inventory" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to inventory
         </Link>
       </div>
@@ -133,7 +134,7 @@ export default function BatchDetailPage() {
   return (
     <PageContainer>
       <div>
-        <Link to="/inventory" className="text-sm font-medium text-brand-700 hover:text-brand-600">
+        <Link to="/inventory" className={`text-sm font-medium ${textLinkClass}`}>
           ← Device inventory
         </Link>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -153,7 +154,7 @@ export default function BatchDetailPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Supplier</p>
           <p className="mt-1 text-sm font-medium text-slate-900">{supplier?.name ?? `Supplier #${batch.supplier_id}`}</p>
           {supplier ? (
-            <Link to={`/suppliers/${supplier.id}/edit`} className="mt-2 inline-block text-sm text-brand-700 hover:underline">
+            <Link to={`/suppliers/${supplier.id}/edit`} className={`mt-2 inline-block text-sm ${textLinkClass}`}>
               View supplier
             </Link>
           ) : null}

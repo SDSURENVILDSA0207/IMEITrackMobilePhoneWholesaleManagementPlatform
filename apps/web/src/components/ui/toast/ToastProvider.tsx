@@ -8,6 +8,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import { IconTint, type IconTintTone } from "@/components/ui/IconTint";
+
 import { ToastContext, type ToastContextValue, type ToastType } from "./context";
 
 type ToastItem = {
@@ -18,31 +20,38 @@ type ToastItem = {
 
 const DURATION_MS = 5200;
 
+function toastTone(type: ToastType): IconTintTone {
+  if (type === "success") return "success";
+  if (type === "error") return "danger";
+  return "info";
+}
+
 function ToastIcon({ type }: { type: ToastType }) {
+  const tone = toastTone(type);
   if (type === "success") {
     return (
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+      <IconTint tone={tone} size="sm">
+        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
-      </span>
+      </IconTint>
     );
   }
   if (type === "error") {
     return (
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700">
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+      <IconTint tone={tone} size="sm">
+        <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
-      </span>
+      </IconTint>
     );
   }
   return (
-    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-700">
-      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+    <IconTint tone={tone} size="sm">
+      <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
         <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
       </svg>
-    </span>
+    </IconTint>
   );
 }
 
@@ -93,12 +102,14 @@ export function ToastProvider({ children }: PropsWithChildren) {
                 <button
                   type="button"
                   onClick={() => dismiss(t.id)}
-                  className="shrink-0 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="shrink-0 rounded-lg p-0.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                   aria-label="Dismiss notification"
                 >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <IconTint tone="muted" size="xs">
+                    <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </IconTint>
                 </button>
               </div>
             ))}

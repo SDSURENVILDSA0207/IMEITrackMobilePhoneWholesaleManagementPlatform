@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { FieldError } from "@/components/ui/FieldError";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -59,7 +60,7 @@ export default function SalesOrderCreatePage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Your role cannot create sales orders.</p>
-        <Link to="/sales-orders" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
+        <Link to="/sales-orders" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to sales orders
         </Link>
       </div>
@@ -69,7 +70,7 @@ export default function SalesOrderCreatePage() {
   return (
     <PageContainer className="mx-auto max-w-2xl">
       <div>
-        <Link to="/sales-orders" className="text-sm font-medium text-brand-700 hover:text-brand-600">
+        <Link to="/sales-orders" className={`text-sm font-medium ${textLinkClass}`}>
           ← Sales orders
         </Link>
         <div className="mt-3">

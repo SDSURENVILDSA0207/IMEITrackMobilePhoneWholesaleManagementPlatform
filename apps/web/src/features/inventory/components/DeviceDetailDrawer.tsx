@@ -7,6 +7,8 @@ import type { DeviceDetailed } from "@/features/inventory/types";
 import { conditionBadgeClass, lockBadgeClass, statusBadgeClass } from "@/features/inventory/utils/deviceStyles";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { IconTint } from "@/components/ui/IconTint";
+import { textLinkClass } from "@/components/ui/linkStyles";
 
 type DeviceDetailDrawerProps = {
   deviceId: number | null;
@@ -86,12 +88,14 @@ export function DeviceDetailDrawer({ deviceId, open, onClose }: DeviceDetailDraw
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
             aria-label="Close"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <IconTint tone="muted" size="sm">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </IconTint>
           </button>
         </div>
 
@@ -169,7 +173,7 @@ export function DeviceDetailDrawer({ deviceId, open, onClose }: DeviceDetailDraw
                     <p className="text-xs text-slate-600">Batch #{device.source_batch.id}</p>
                     <Link
                       to={`/inventory/batches/${device.source_batch.id}`}
-                      className="inline-block text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      className={`inline-block text-sm font-medium ${textLinkClass}`}
                       onClick={onClose}
                     >
                       View batch →

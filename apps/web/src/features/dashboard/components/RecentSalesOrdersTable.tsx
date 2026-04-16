@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { SoStatusBadge } from "@/features/sales-orders/components/SoStatusBadge";
 import type { RecentSalesOrderRow } from "@/features/dashboard/types";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
@@ -18,7 +19,7 @@ export function RecentSalesOrdersTable({ rows, loading }: RecentSalesOrdersTable
       id: "order",
       header: "Order",
       cell: (row) => (
-        <Link to={`/sales-orders/${row.id}`} className="font-semibold text-brand-700 hover:text-brand-600">
+        <Link to={`/sales-orders/${row.id}`} className={`${textLinkClass} font-semibold`}>
           {row.order_number}
         </Link>
       ),

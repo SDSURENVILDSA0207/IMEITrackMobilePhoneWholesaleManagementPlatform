@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { PurchaseOrderCreateForm } from "@/features/purchase-orders/components/PurchaseOrderCreateForm";
 import { listSuppliers } from "@/features/suppliers/api";
@@ -36,7 +37,7 @@ export default function PurchaseOrderCreatePage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Only procurement roles can create purchase orders.</p>
-        <Link to="/purchase-orders" className="mt-4 inline-block text-sm font-semibold text-indigo-700 hover:underline">
+        <Link to="/purchase-orders" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to purchase orders
         </Link>
       </div>
@@ -46,7 +47,7 @@ export default function PurchaseOrderCreatePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <Link to="/purchase-orders" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <Link to="/purchase-orders" className={`text-sm font-medium ${textLinkClass}`}>
           ← Purchase orders
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">New purchase order</h1>

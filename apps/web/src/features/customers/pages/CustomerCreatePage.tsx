@@ -7,6 +7,7 @@ import { createCustomer } from "@/features/customers/api";
 import type { CustomerFormValues } from "@/features/customers/schemas/customerFormSchema";
 import { defaultCustomerFormValues, formValuesToCreatePayload } from "@/features/customers/utils/customerFormMappers";
 import { canManageCustomers } from "@/features/customers/utils/permissions";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 
 export default function CustomerCreatePage() {
@@ -30,7 +31,7 @@ export default function CustomerCreatePage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Your role cannot create customers.</p>
-        <Link to="/customers" className="mt-4 inline-block text-sm font-semibold text-indigo-700 hover:underline">
+        <Link to="/customers" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to customers
         </Link>
       </div>
@@ -40,7 +41,7 @@ export default function CustomerCreatePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link to="/customers" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <Link to="/customers" className={`text-sm font-medium ${textLinkClass}`}>
           ← Customers
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">New customer</h1>

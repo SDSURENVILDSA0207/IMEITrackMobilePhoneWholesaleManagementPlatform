@@ -1,9 +1,13 @@
+import type { LucideIcon } from "lucide-react";
+
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
+import { IconTint } from "@/components/ui/IconTint";
 
 type TopNavProps = {
   title?: string;
-  onToggleSidebar?: () => void;
+  /** Icon for the current primary section (from shared nav config + route). */
+  titleIcon?: LucideIcon;
 };
 
 function IconLogout(props: { className?: string }) {
@@ -14,23 +18,17 @@ function IconLogout(props: { className?: string }) {
   );
 }
 
-function IconPanel(props: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={props.className} aria-hidden>
-      <path d="M4 5h16M4 12h16M4 19h10" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-export function TopNav({ title = "Dashboard", onToggleSidebar }: TopNavProps) {
+export function TopNav({ title = "Dashboard", titleIcon: TitleIcon }: TopNavProps) {
   const { user, roleLabel, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur-xl md:px-8">
-      <div className="flex min-w-0 items-center gap-2">
-        <Button type="button" variant="ghost" size="sm" className="hidden md:inline-flex" onClick={onToggleSidebar}>
-          <IconPanel className="h-4 w-4" />
-        </Button>
+      <div className="flex min-w-0 items-center gap-3 md:gap-3.5">
+        {TitleIcon ? (
+          <IconTint tone="brand" size="md" className="shrink-0">
+            <TitleIcon aria-hidden strokeWidth={1.85} />
+          </IconTint>
+        ) : null}
         <h1 className="min-w-0 truncate text-lg font-semibold tracking-tight text-slate-900 md:text-[1.1rem]">{title}</h1>
       </div>
       <div className="flex shrink-0 items-center gap-3">
@@ -48,7 +46,9 @@ export function TopNav({ title = "Dashboard", onToggleSidebar }: TopNavProps) {
           </span>
         )}
         <Button type="button" variant="secondary" size="sm" onClick={signOut}>
-          <IconLogout className="h-4 w-4" />
+          <IconTint tone="muted" size="sm">
+            <IconLogout />
+          </IconTint>
           <span className="hidden sm:inline">Sign out</span>
         </Button>
       </div>

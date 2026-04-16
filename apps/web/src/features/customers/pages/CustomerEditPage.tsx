@@ -8,6 +8,7 @@ import type { Customer } from "@/features/customers/types";
 import type { CustomerFormValues } from "@/features/customers/schemas/customerFormSchema";
 import { customerToFormValues, formValuesToUpdatePayload } from "@/features/customers/utils/customerFormMappers";
 import { canManageCustomers } from "@/features/customers/utils/permissions";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 
 export default function CustomerEditPage() {
@@ -66,7 +67,7 @@ export default function CustomerEditPage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Your role cannot edit customers.</p>
-        <Link to="/customers" className="mt-4 inline-block text-sm font-semibold text-indigo-700 hover:underline">
+        <Link to="/customers" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to customers
         </Link>
       </div>
@@ -87,7 +88,7 @@ export default function CustomerEditPage() {
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-900">
         <h1 className="text-lg font-semibold">Unable to load customer</h1>
         <p className="mt-2 text-sm">{loadError ?? "Unknown error."}</p>
-        <Link to="/customers" className="mt-4 inline-block text-sm font-semibold text-indigo-700 hover:underline">
+        <Link to="/customers" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to customers
         </Link>
       </div>
@@ -97,7 +98,7 @@ export default function CustomerEditPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link to="/customers" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <Link to="/customers" className={`text-sm font-medium ${textLinkClass}`}>
           ← Customers
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">Edit customer</h1>

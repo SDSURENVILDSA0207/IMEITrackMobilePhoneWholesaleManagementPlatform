@@ -34,8 +34,8 @@ export default {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.06)",
-        raised: "0 8px 24px -12px rgb(15 23 42 / 0.18)",
+        soft: "0 2px 10px -6px rgb(15 23 42 / 0.16), 0 1px 3px -2px rgb(15 23 42 / 0.08)",
+        raised: "0 18px 44px -24px rgb(15 23 42 / 0.28), 0 6px 18px -10px rgb(15 23 42 / 0.16)",
       },
     },
   },

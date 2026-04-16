@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSpinner } from "@/components/ui/PageSpinner";
@@ -124,7 +125,7 @@ export default function ReturnRequestDetailPage() {
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-900">
         <h1 className="text-lg font-semibold">Unable to load return</h1>
         <p className="mt-2 text-sm">{error ?? "Unknown error."}</p>
-        <Link to="/returns" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
+        <Link to="/returns" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to list
         </Link>
       </div>
@@ -134,7 +135,7 @@ export default function ReturnRequestDetailPage() {
   return (
     <PageContainer className="mx-auto max-w-4xl">
       <div>
-        <Link to="/returns" className="text-sm font-medium text-brand-700 hover:text-brand-600">
+        <Link to="/returns" className={`text-sm font-medium ${textLinkClass}`}>
           ← Returns / RMA
         </Link>
         <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -168,7 +169,7 @@ export default function ReturnRequestDetailPage() {
               {ret.sales_order ? (
                 <Link
                   to={`/sales-orders/${ret.sales_order.id}`}
-                  className="font-semibold text-brand-700 hover:text-brand-600"
+                  className={`${textLinkClass} font-semibold`}
                 >
                   {ret.sales_order.order_number}
                 </Link>

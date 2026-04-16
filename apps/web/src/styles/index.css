@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --color-brand-50: 238 242 255;
-  --color-brand-100: 224 231 255;
-  --color-brand-500: 99 102 241;
-  --color-brand-600: 79 70 229;
-  --color-brand-700: 67 56 202;
+  --color-brand-50: 236 246 250;
+  --color-brand-100: 220 237 245;
+  --color-brand-500: 54 121 154;
+  --color-brand-600: 42 103 134;
+  --color-brand-700: 34 84 109;
 
-  --color-bg: 245 247 252;
+  --color-bg: 246 248 252;
   --color-surface: 255 255 255;
 
-  --color-success-50: 236 253 245;
-  --color-success-600: 5 150 105;
-  --color-success-700: 4 120 87;
+  --color-success-50: 238 252 245;
+  --color-success-600: 28 142 106;
+  --color-success-700: 19 118 87;
 
-  --color-warning-50: 255 251 235;
-  --color-warning-600: 217 119 6;
-  --color-warning-700: 180 83 9;
+  --color-warning-50: 255 249 236;
+  --color-warning-600: 199 129 33;
+  --color-warning-700: 165 103 24;
 
-  --color-danger-50: 254 242 242;
-  --color-danger-600: 220 38 38;
-  --color-danger-700: 185 28 28;
+  --color-danger-50: 255 242 242;
+  --color-danger-600: 203 78 78;
+  --color-danger-700: 167 57 57;
 }
 
 body {
@@ -42,9 +42,9 @@ body {
 /* Signature “Midnight Paper” background treatment for app shell. */
 .app-bg {
   background-image:
-    radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.12), transparent 28%),
-    radial-gradient(circle at 100% 0%, rgba(15, 23, 42, 0.1), transparent 24%),
-    linear-gradient(180deg, #f7f9fd 0%, #f3f6fb 100%);
+    radial-gradient(circle at 0% 0%, rgba(54, 121, 154, 0.09), transparent 30%),
+    radial-gradient(circle at 100% 0%, rgba(15, 23, 42, 0.07), transparent 24%),
+    linear-gradient(180deg, #f8f9fc 0%, #f4f6fb 100%);
 }
 
 @keyframes modal-in {
@@ -55,5 +55,49 @@ body {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@layer components {
+  /* Inline text links — underline appears subtly on hover (8px-scale motion via color/decoration). */
+  .text-link {
+    @apply text-brand-700 underline decoration-transparent underline-offset-[3px];
+    @apply transition-[color,text-decoration-color] duration-150 ease-out;
+    @apply focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-brand-600/25 focus-visible:ring-offset-1;
+  }
+  .text-link:hover {
+    @apply text-brand-600 decoration-brand-600/35;
+  }
+
+  .text-link-muted {
+    @apply text-slate-600 underline decoration-transparent underline-offset-[3px];
+    @apply transition-[color,text-decoration-color] duration-150 ease-out;
+    @apply focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-slate-400/35 focus-visible:ring-offset-1;
+  }
+  .text-link-muted:hover {
+    @apply text-slate-900 decoration-slate-400/35;
+  }
+
+  .text-link-neutral {
+    @apply font-semibold text-slate-700 underline decoration-transparent underline-offset-[3px];
+    @apply transition-[color,text-decoration-color] duration-150 ease-out;
+    @apply focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-brand-600/25 focus-visible:ring-offset-1;
+  }
+  .text-link-neutral:hover {
+    @apply text-brand-700 decoration-brand-600/35;
+  }
+
+  .text-link-chip {
+    @apply relative z-10 inline-block rounded-md px-2 py-1 text-sm font-semibold text-brand-700 no-underline;
+    @apply transition-colors duration-150 ease-out;
+    @apply hover:bg-brand-50/90 hover:text-brand-600;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/25 focus-visible:ring-offset-1;
+  }
+
+  .text-link-pill {
+    @apply shrink-0 rounded-full bg-brand-50/70 px-3 py-1.5 text-sm font-semibold text-brand-700 no-underline;
+    @apply transition-colors duration-150 ease-out;
+    @apply hover:bg-brand-50 hover:text-brand-600;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/25 focus-visible:ring-offset-1;
   }
 }

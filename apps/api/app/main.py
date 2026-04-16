@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.analytics import router as analytics_router
+from app.api.routes.assistant import router as assistant_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.copilot import router as copilot_router
 from app.api.routes.customers import router as customers_router
 from app.api.routes.devices import router as devices_router
 from app.api.routes.health import router as health_router
@@ -39,6 +41,8 @@ def create_app() -> FastAPI:
     app.include_router(health_router, prefix=settings.api_v1_prefix)
     app.include_router(auth_router, prefix=settings.api_v1_prefix)
     app.include_router(analytics_router, prefix=settings.api_v1_prefix)
+    app.include_router(assistant_router, prefix=settings.api_v1_prefix)
+    app.include_router(copilot_router, prefix=settings.api_v1_prefix)
     app.include_router(protected_router, prefix=settings.api_v1_prefix)
     app.include_router(suppliers_router, prefix=settings.api_v1_prefix)
     app.include_router(customers_router, prefix=settings.api_v1_prefix)

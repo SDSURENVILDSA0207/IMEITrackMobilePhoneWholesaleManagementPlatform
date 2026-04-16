@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass, textLinkMutedClass } from "@/components/ui/linkStyles";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -127,7 +128,7 @@ export default function ReturnRequestCreatePage() {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
         <h1 className="text-lg font-semibold">Permission required</h1>
         <p className="mt-2 text-sm text-amber-900/90">Your role cannot create return requests.</p>
-        <Link to="/returns" className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline">
+        <Link to="/returns" className={`mt-4 inline-block text-sm font-semibold ${textLinkClass}`}>
           Back to returns
         </Link>
       </div>
@@ -137,7 +138,7 @@ export default function ReturnRequestCreatePage() {
   return (
     <PageContainer className="mx-auto max-w-3xl">
       <div>
-        <Link to="/returns" className="text-sm font-medium text-brand-700 hover:text-brand-600">
+        <Link to="/returns" className={`text-sm font-medium ${textLinkClass}`}>
           ← Returns / RMA
         </Link>
         <div className="mt-3">
@@ -243,20 +244,26 @@ export default function ReturnRequestCreatePage() {
               Select one line item. Only devices that are still marked sold and without an open return can be chosen.
             </p>
 
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50/90">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200/70 bg-white/90 ring-1 ring-slate-200/35">
+              <table className="min-w-full border-collapse text-left text-sm">
+                <thead className="border-b border-slate-100/90 bg-slate-50/80">
                   <tr>
-                    <th className="w-10 px-3 py-2" scope="col" />
-                    <th className="px-3 py-2 font-semibold text-slate-700">IMEI</th>
-                    <th className="px-3 py-2 font-semibold text-slate-700">Status</th>
-                    <th className="px-3 py-2 font-semibold text-slate-700">Note</th>
+                    <th className="w-10 px-4 py-3.5 align-middle" scope="col" />
+                    <th className="px-4 py-3.5 align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500">
+                      IMEI
+                    </th>
+                    <th className="px-4 py-3.5 align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500">
+                      Status
+                    </th>
+                    <th className="px-4 py-3.5 align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500">
+                      Note
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100/55">
                   {orderDetail.items.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-3 py-6 text-center text-slate-500">
+                      <td colSpan={4} className="px-5 py-8 text-center text-sm text-slate-500">
                         This order has no line items.
                       </td>
                     </tr>
@@ -275,8 +282,11 @@ export default function ReturnRequestCreatePage() {
                         disabled = false;
                       }
                       return (
-                        <tr key={it.id} className={disabled ? "bg-slate-50/80 text-slate-500" : ""}>
-                          <td className="px-3 py-2 align-middle">
+                        <tr
+                          key={it.id}
+                          className={`transition-colors duration-150 ${disabled ? "bg-slate-50/85 text-slate-500" : "hover:bg-slate-50/90"}`}
+                        >
+                          <td className="px-4 py-4 align-middle">
                             <input
                               type="radio"
                               name="device_pick"
@@ -287,9 +297,9 @@ export default function ReturnRequestCreatePage() {
                               aria-label={`Select device ${d?.imei ?? it.device_id}`}
                             />
                           </td>
-                          <td className="px-3 py-2 font-mono text-xs">{d?.imei ?? `Device #${it.device_id}`}</td>
-                          <td className="px-3 py-2 capitalize">{d?.status?.replace("_", " ") ?? "—"}</td>
-                          <td className="px-3 py-2 text-xs">{note || "—"}</td>
+                          <td className="px-4 py-4 align-middle font-mono text-xs text-slate-800">{d?.imei ?? `Device #${it.device_id}`}</td>
+                          <td className="px-4 py-4 align-middle capitalize text-slate-700">{d?.status?.replace("_", " ") ?? "—"}</td>
+                          <td className="px-4 py-4 align-middle text-xs text-slate-600">{note || "—"}</td>
                         </tr>
                       );
                     })
@@ -333,7 +343,7 @@ export default function ReturnRequestCreatePage() {
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting…" : "Submit return request"}
           </Button>
-          <Link to="/returns" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+          <Link to="/returns" className={`text-sm font-medium ${textLinkMutedClass}`}>
             Cancel
           </Link>
         </div>

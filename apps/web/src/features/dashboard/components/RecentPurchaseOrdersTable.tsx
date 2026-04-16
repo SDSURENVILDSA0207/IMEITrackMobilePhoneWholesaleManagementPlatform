@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { PoStatusBadge } from "@/features/purchase-orders/components/PoStatusBadge";
 import type { RecentPurchaseOrderRow } from "@/features/dashboard/types";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
@@ -18,7 +19,7 @@ export function RecentPurchaseOrdersTable({ rows, loading }: RecentPurchaseOrder
       id: "po",
       header: "PO",
       cell: (row) => (
-        <Link to={`/purchase-orders/${row.id}`} className="font-semibold text-brand-700 hover:text-brand-600">
+        <Link to={`/purchase-orders/${row.id}`} className={`${textLinkClass} font-semibold`}>
           {row.po_number}
         </Link>
       ),

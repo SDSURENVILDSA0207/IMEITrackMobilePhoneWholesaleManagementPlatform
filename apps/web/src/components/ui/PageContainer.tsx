@@ -5,5 +5,5 @@ type PageContainerProps = PropsWithChildren<{
 }>;
 
 export function PageContainer({ className = "", children }: PageContainerProps) {
-  return <div className={["space-y-6 lg:space-y-7", className].join(" ")}>{children}</div>;
+  return <div className={["space-y-8 lg:space-y-10", className].join(" ")}>{children}</div>;
 }

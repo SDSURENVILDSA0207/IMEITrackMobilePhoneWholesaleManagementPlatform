@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { fetchDashboardAnalytics } from "@/features/dashboard/api";
+import { DashboardCopilotPanel } from "@/features/dashboard/components/DashboardCopilotPanel";
 import { DashboardSection } from "@/features/dashboard/components/DashboardSection";
 import { DashboardStatCard } from "@/features/dashboard/components/DashboardStatCard";
 import type { DistributionBarDatum } from "@/features/dashboard/components/DistributionBarChart";
@@ -10,11 +11,14 @@ import { LowStockTable } from "@/features/dashboard/components/LowStockTable";
 import { RecentPurchaseOrdersTable } from "@/features/dashboard/components/RecentPurchaseOrdersTable";
 import { RecentSalesOrdersTable } from "@/features/dashboard/components/RecentSalesOrdersTable";
 import type { DashboardAnalytics } from "@/features/dashboard/types";
+import { fetchCopilotOverview } from "@/features/copilot/api";
+import type { CopilotOverview } from "@/features/copilot/types";
 import { conditionGradeBarClass, returnStatusBarClass } from "@/features/dashboard/utils/chartColors";
 import { RMA_STATUS_LABELS } from "@/features/returns/constants/statusLabels";
 import type { ReturnRequestStatus } from "@/features/returns/types";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 import { Card } from "@/components/ui/Card";
+import { textLinkClass } from "@/components/ui/linkStyles";
 import { PageContainer } from "@/components/ui/PageContainer";
 
 const RECENT_LIMIT = 8;
@@ -24,6 +28,9 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copilot, setCopilot] = useState<CopilotOverview | null>(null);
+  const [copilotLoading, setCopilotLoading] = useState(true);
+  const [copilotError, setCopilotError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +46,26 @@ export default function DashboardPage() {
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCopilotOverview({ low_stock_threshold: LOW_STOCK_THRESHOLD })
+      .then((res) => {
+        if (!cancelled) setCopilot(res);
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setCopilot(null);
+          setCopilotError(extractApiErrorMessage(e, "Copilot insights are temporarily unavailable."));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCopilotLoading(false);
       });
     return () => {
       cancelled = true;
@@ -68,9 +95,10 @@ export default function DashboardPage() {
   }, [data?.inventory_by_condition_grade]);
 
   return (
-    <PageContainer className="space-y-8">
-      <header className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 p-7 shadow-soft">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-52 w-52 rounded-full bg-brand-100/70 blur-3xl" />
+    <PageContainer className="!space-y-10 lg:!space-y-12">
+      <header className="relative overflow-hidden rounded-3xl border border-slate-200/75 bg-[linear-gradient(180deg,rgba(236,246,250,0.4),rgba(255,255,255,0.92))] p-8 shadow-soft">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-52 w-52 rounded-full bg-brand-100/55 blur-3xl" />
+        <div className="pointer-events-none absolute -left-14 bottom-0 h-24 w-48 rounded-full bg-brand-50/40 blur-3xl" />
         <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-700">IMEITrack</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2rem]">Operations dashboard</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
@@ -84,9 +112,17 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
+      {copilotError ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+          {copilotError}
+        </div>
+      ) : null}
+
+      <DashboardCopilotPanel data={copilot} loading={copilotLoading} />
+
       <section aria-label="Key metrics">
         <h2 className="sr-only">Key metrics</h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-5">
           <DashboardStatCard
             label="Suppliers"
             value={loading ? "—" : (k?.total_suppliers ?? "—")}
@@ -120,7 +156,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <DashboardSection
           title="Recent purchase orders"
           description="Latest POs by created date."
@@ -140,9 +176,9 @@ export default function DashboardPage() {
         </DashboardSection>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="flex h-full flex-col">
-          <div className="p-6">
+      <div className="grid gap-8 lg:grid-cols-2">
+        <Card className="h-full bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(247,251,253,0.92))]">
+          <div className="p-8">
             <DistributionBarChart
               title="Return requests by status"
               description="Counts across all RMA statuses."
@@ -151,19 +187,14 @@ export default function DashboardPage() {
               valueLabel="requests"
               loading={loading}
             />
-          </div>
-          {!loading ? (
-            <div className="border-t border-slate-100 px-6 py-4">
-              <Link
-                to="/returns"
-                className="inline-flex text-sm font-semibold text-brand-700 hover:text-brand-600"
-              >
+            {!loading ? (
+              <Link to="/returns" className={`mt-6 inline-flex text-sm font-semibold ${textLinkClass}`}>
                 Open returns / RMA →
               </Link>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </Card>
-        <Card className="flex h-full flex-col">
+        <Card className="h-full bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(247,251,253,0.92))]">
           <div className="p-6">
             <DistributionBarChart
               title="Inventory by condition grade"
@@ -173,17 +204,12 @@ export default function DashboardPage() {
               valueLabel="devices"
               loading={loading}
             />
-          </div>
-          {!loading ? (
-            <div className="border-t border-slate-100 px-6 py-4">
-              <Link
-                to="/inventory"
-                className="inline-flex text-sm font-semibold text-brand-700 hover:text-brand-600"
-              >
+            {!loading ? (
+              <Link to="/inventory" className={`mt-6 inline-flex text-sm font-semibold ${textLinkClass}`}>
                 Browse inventory →
               </Link>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </Card>
       </div>
 

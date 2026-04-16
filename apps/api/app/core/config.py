@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
+    assistant_provider: str = "grounded"
+    assistant_api_key: str | None = None
 
     cors_origins: list[str] | str = ["http://localhost:5173"]
 
