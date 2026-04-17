@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -15,6 +15,7 @@ import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { CopilotQueryKey, parseReturnStatusFromQuery } from "@/features/assistant/copilotPageContext";
 
 const selectClass =
   "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
@@ -34,9 +35,18 @@ export default function ReturnsListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const canCreate = canCreateReturnRequest(user);
 
-  const [statusFilter, setStatusFilter] = useState("");
+  const statusFilter = parseReturnStatusFromQuery(searchParams.get(CopilotQueryKey.status));
+
+  const setStatusFilter = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (v) next.set(CopilotQueryKey.status, v);
+    else next.delete(CopilotQueryKey.status);
+    setSearchParams(next, { replace: true });
+  };
+
   const [rows, setRows] = useState<ReturnRequestDetailed[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +149,23 @@ export default function ReturnsListPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
           {error}
         </div>
+      ) : null}
+
+      {statusFilter ? (
+        <p className="mb-3 text-xs text-slate-500" role="status">
+          Status filter from link.{" "}
+          <button
+            type="button"
+            className="font-semibold text-brand-700 underline decoration-brand-300/80 underline-offset-2 hover:text-brand-800"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete(CopilotQueryKey.status);
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            Clear filter
+          </button>
+        </p>
       ) : null}
 
       <FilterPanel title="Filter returns">

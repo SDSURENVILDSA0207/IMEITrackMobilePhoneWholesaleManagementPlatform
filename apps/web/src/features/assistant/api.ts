@@ -1,16 +1,8 @@
 import api from "@/shared/api/client";
 
-export type AssistantAction = {
-  label: string;
-  path: string;
-};
+import type { AssistantChatResponse } from "@/features/assistant/types";
 
-export type AssistantChatResponse = {
-  answer: string;
-  grounded: boolean;
-  actions: AssistantAction[];
-  suggested_prompts: string[];
-};
+export type { AssistantAction, AssistantChatResponse, AssistantNavigateAction } from "@/features/assistant/types";
 
 export async function fetchAssistantPrompts(): Promise<string[]> {
   const { data } = await api.get<{ prompts: string[] }>("/assistant/prompts");

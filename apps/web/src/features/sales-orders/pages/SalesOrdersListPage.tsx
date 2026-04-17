@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -18,6 +18,11 @@ import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import {
+  CopilotQueryKey,
+  CopilotQueryValue,
+  parseSalesOrderStatusFromQuery,
+} from "@/features/assistant/copilotPageContext";
 
 const selectClass =
   "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
@@ -26,10 +31,30 @@ export default function SalesOrdersListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const canManage = canManageSalesOrders(user);
 
-  const [statusFilter, setStatusFilter] = useState("");
-  const [customerFilter, setCustomerFilter] = useState("");
+  const statusFilter = parseSalesOrderStatusFromQuery(searchParams.get(CopilotQueryKey.status));
+  const customerFilter = useMemo(() => {
+    const c = searchParams.get(CopilotQueryKey.customer);
+    return c && /^\d+$/.test(c) ? c : "";
+  }, [searchParams]);
+  const sortRecent = searchParams.get(CopilotQueryKey.sort) === CopilotQueryValue.sortRecent;
+
+  const setStatusFilter = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (v) next.set(CopilotQueryKey.status, v);
+    else next.delete(CopilotQueryKey.status);
+    setSearchParams(next, { replace: true });
+  };
+
+  const setCustomerFilter = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (v) next.set(CopilotQueryKey.customer, v);
+    else next.delete(CopilotQueryKey.customer);
+    setSearchParams(next, { replace: true });
+  };
+
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [rows, setRows] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +105,11 @@ export default function SalesOrdersListPage() {
       cancelled = true;
     };
   }, [statusFilter, customerFilter]);
+
+  const displayRows = useMemo(() => {
+    if (!sortRecent) return rows;
+    return [...rows].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [rows, sortRecent]);
 
   const columns: DataTableColumn<SalesOrder>[] = [
     {
@@ -142,6 +172,24 @@ export default function SalesOrdersListPage() {
         </div>
       ) : null}
 
+      {sortRecent ? (
+        <p className="mb-3 text-xs text-slate-500" role="status">
+          Showing newest orders first (from Copilot link). Clear{" "}
+          <button
+            type="button"
+            className="font-semibold text-brand-700 underline decoration-brand-300/80 underline-offset-2 hover:text-brand-800"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete(CopilotQueryKey.sort);
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            recent sort
+          </button>{" "}
+          to use default table order.
+        </p>
+      ) : null}
+
       <FilterPanel title="Filter sales orders">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div>
@@ -179,7 +227,7 @@ export default function SalesOrdersListPage() {
 
       <DataTable
         columns={columns}
-        data={rows}
+        data={displayRows}
         getRowKey={(o) => o.id}
         loading={loading}
         emptyTitle="No sales orders found"

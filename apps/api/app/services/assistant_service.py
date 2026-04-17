@@ -11,10 +11,16 @@ from app.models.return_request import ReturnRequest
 from app.models.sales_order import SalesOrder
 from app.models.supplier import Supplier
 from app.models.user import User, UserRole
-from app.schemas.assistant import AssistantAction, AssistantChatResponse
+from app.schemas.assistant import AssistantAction, AssistantChatResponse, AssistantNavigateAction
 from app.services import analytics_service
+from app.services.assistant_navigation import parse_navigation_intent
 
 IMEI_PATTERN = re.compile(r"\b\d{14,17}\b")
+
+_INVENTORY_IMEI_NAV_PATTERN = re.compile(
+    r"\b(find|search|lookup|look\s*up|locate|show)\b.*\b(imei|device)\b|\b(imei|device)\b.*\b(find|search|lookup|look\s*up|locate|show)\b",
+    re.IGNORECASE,
+)
 
 
 def _currency(value: Decimal | float | int | None) -> str:
@@ -281,11 +287,80 @@ def get_prompts_for_user(user: User) -> list[str]:
     return _default_prompts(user.role)
 
 
+def _try_inventory_imei_navigation(db: Session, message: str) -> AssistantChatResponse | None:
+    """Open inventory and run IMEI search when the user clearly asks to find a device by IMEI."""
+    m = IMEI_PATTERN.search(message)
+    if not m or not _INVENTORY_IMEI_NAV_PATTERN.search(message):
+        return None
+    imei = m.group(0)
+    base = _device_lookup(db, imei)
+    return base.model_copy(
+        update={
+            "intent": "mixed",
+            "action": AssistantNavigateAction(
+                type="navigate",
+                target="/inventory",
+                query={"imei": imei},
+                context="imei_search",
+            ),
+        }
+    )
+
+
+def _try_mixed_summary_with_navigation(db: Session, message: str) -> AssistantChatResponse | None:
+    """Data-rich reply plus a navigation action when the user asks for both."""
+    s = message.lower()
+    if not any(k in s for k in ("summarize", "summary", "overview of", "tell me about")):
+        return None
+    if re.search(r"\b(purchase\s+orders?|purchase\s+order|procurement|p\.?o\.?s?)\b", s):
+        base = _recent_purchase(db)
+        return base.model_copy(
+            update={
+                "intent": "mixed",
+                "action": AssistantNavigateAction(type="navigate", target="/purchase-orders", query={}),
+            }
+        )
+    if re.search(r"\b(sales\s+orders?|sales\s+order)\b", s):
+        base = _recent_sales(db)
+        return base.model_copy(
+            update={
+                "intent": "mixed",
+                "action": AssistantNavigateAction(type="navigate", target="/sales-orders", query={}),
+            }
+        )
+    return None
+
+
 def respond_to_message(*, db: Session, user: User, message: str, context_route: str | None = None) -> AssistantChatResponse:
     _ = context_route
     text = message.strip()
-    intent = _intent_from_message(text)
     imei_match = IMEI_PATTERN.search(text)
+
+    mixed = _try_mixed_summary_with_navigation(db, text)
+    if mixed is not None:
+        return mixed
+
+    nav = parse_navigation_intent(text)
+    if nav is not None:
+        return AssistantChatResponse(
+            answer=nav.message,
+            grounded=True,
+            intent=nav.intent,
+            action=AssistantNavigateAction(
+                type="navigate",
+                target=nav.target,
+                query=nav.query,
+                context=nav.context,
+            ),
+            actions=[],
+            suggested_prompts=_default_prompts(user.role),
+        )
+
+    inv_imei = _try_inventory_imei_navigation(db, text)
+    if inv_imei is not None:
+        return inv_imei
+
+    intent = _intent_from_message(text)
 
     if intent == "imei_lookup" and imei_match:
         return _device_lookup(db, imei_match.group(0))

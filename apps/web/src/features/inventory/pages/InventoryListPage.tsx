@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { textLinkClass } from "@/components/ui/linkStyles";
 
@@ -20,11 +20,18 @@ import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { CopilotQueryKey, CopilotQueryValue } from "@/features/assistant/copilotPageContext";
 
 const selectClass =
   "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
 
 export default function InventoryListPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const copilotLowStockHint = useMemo(
+    () => searchParams.get(CopilotQueryKey.copilot) === CopilotQueryValue.copilotLowStock,
+    [searchParams],
+  );
+
   const [brand, setBrand] = useState("");
   const [modelName, setModelName] = useState("");
   const debouncedBrand = useDebouncedValue(brand, 350);
@@ -64,6 +71,28 @@ export default function InventoryListPage() {
   useEffect(() => {
     void loadDevices();
   }, [loadDevices]);
+
+  const imeiFromUrl = searchParams.get(CopilotQueryKey.imei);
+  useEffect(() => {
+    const raw = (imeiFromUrl ?? "").replace(/\D/g, "");
+    if (raw.length < 14 || raw.length > 17) return;
+
+    let cancelled = false;
+    setImeiQuery(raw);
+    setImeiError(null);
+    void (async () => {
+      try {
+        const d = await searchDeviceByImei(raw);
+        if (!cancelled) setDrawerId(d.id);
+      } catch (err) {
+        if (!cancelled) setImeiError(extractApiErrorMessage(err, "Device not found"));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [imeiFromUrl]);
 
   async function handleImeiSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -164,6 +193,29 @@ export default function InventoryListPage() {
         title="Device inventory"
         description="Track IMEIs, grades, lock state, and source batches across your wholesale stock."
       />
+
+      {copilotLowStockHint ? (
+        <div
+          className="mb-4 flex flex-col gap-2 rounded-xl border border-brand-100/90 bg-brand-50/60 px-4 py-3 text-sm text-brand-950 ring-1 ring-brand-100/70 sm:flex-row sm:items-center sm:justify-between"
+          role="status"
+        >
+          <p className="text-brand-900/95">
+            <span className="font-semibold">Copilot</span> sent you here for low-stock follow-up. Use filters below or check the
+            dashboard low-stock watchlist for model-level counts.
+          </p>
+          <button
+            type="button"
+            className="shrink-0 self-start rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-200/80 transition hover:bg-white sm:self-auto"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete(CopilotQueryKey.copilot);
+              setSearchParams(next, { replace: true });
+            }}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
 
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
