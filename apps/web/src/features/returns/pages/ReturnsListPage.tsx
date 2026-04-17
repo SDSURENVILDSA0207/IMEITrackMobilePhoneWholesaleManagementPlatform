@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
@@ -14,11 +14,9 @@ import { textLinkClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { extractApiErrorMessage } from "@/shared/lib/apiError";
 import { CopilotQueryKey, parseReturnStatusFromQuery } from "@/features/assistant/copilotPageContext";
-
-const selectClass =
-  "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
+import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { Select } from "@/components/ui/Select";
 
 function formatWhen(iso: string) {
   try {
@@ -80,6 +78,14 @@ export default function ReturnsListPage() {
       cancelled = true;
     };
   }, [statusFilter]);
+
+  const returnStatusOptions = useMemo(
+    () => [
+      { value: "", label: "All statuses" },
+      ...RETURN_REQUEST_STATUSES.map((s) => ({ value: s, label: RMA_STATUS_LABELS[s] })),
+    ],
+    [],
+  );
 
   const columns: DataTableColumn<ReturnRequestDetailed>[] = [
     {
@@ -171,19 +177,18 @@ export default function ReturnsListPage() {
       <FilterPanel title="Filter returns">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={`mt-1 min-w-[200px] ${selectClass}`}
-          >
-            <option value="">All statuses</option>
-            {RETURN_REQUEST_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {RMA_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="rma-filter-status" className="block text-xs font-medium text-slate-600">
+            Status
+          </label>
+          <div className="min-w-[200px]">
+            <Select
+              id="rma-filter-status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={returnStatusOptions}
+              placeholder="All statuses"
+            />
+          </div>
         </div>
       </div>
       </FilterPanel>

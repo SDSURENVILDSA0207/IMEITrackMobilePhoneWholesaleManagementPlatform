@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
@@ -23,6 +23,7 @@ import { canManagePurchaseOrders } from "@/features/purchase-orders/utils/permis
 import { formatMoney } from "@/features/customers/utils/formatMoney";
 import { listSuppliers } from "@/features/suppliers/api";
 import type { Supplier } from "@/features/suppliers/types";
+import { Select } from "@/components/ui/Select";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 import { formFieldInputClass } from "@/shared/lib/formFieldClasses";
 
@@ -60,6 +61,19 @@ export default function PurchaseOrderDetailPage() {
   const [headerSaving, setHeaderSaving] = useState(false);
   const [headerMsg, setHeaderMsg] = useState<string | null>(null);
   const [headerErr, setHeaderErr] = useState<string | null>(null);
+
+  const poStatusOptions = useMemo(
+    () => PO_STATUSES.map((s) => ({ value: s, label: PO_STATUS_LABELS[s] })),
+    [],
+  );
+
+  const supplierOptions = useMemo(
+    () => [
+      { value: "0", label: "Select…" },
+      ...suppliers.map((s) => ({ value: String(s.id), label: s.name })),
+    ],
+    [suppliers],
+  );
 
   useEffect(() => {
     const state = location.state as { notice?: string } | null;
@@ -268,18 +282,12 @@ export default function PurchaseOrderDetailPage() {
               <label htmlFor="po-status-draft" className="text-xs font-medium text-slate-600">
                 Status
               </label>
-              <select
+              <Select
                 id="po-status-draft"
                 value={statusDraft}
-                onChange={(e) => setStatusDraft(e.target.value as PurchaseOrderStatus)}
-                className={formFieldInputClass}
-              >
-                {PO_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {PO_STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setStatusDraft(v as PurchaseOrderStatus)}
+                options={poStatusOptions}
+              />
             </div>
             <Button type="submit" variant="secondary" disabled={statusSaving || statusDraft === po.status}>
               {statusSaving ? "Saving…" : "Apply status"}
@@ -303,19 +311,16 @@ export default function PurchaseOrderDetailPage() {
               <input className={formFieldInputClass} value={editPoNumber} onChange={(e) => setEditPoNumber(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600">Supplier</label>
-              <select
-                className={formFieldInputClass}
-                value={editSupplierId}
-                onChange={(e) => setEditSupplierId(Number(e.target.value))}
-              >
-                <option value={0}>Select…</option>
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+              <label className="text-xs font-medium text-slate-600" htmlFor="po-edit-supplier">
+                Supplier
+              </label>
+              <Select
+                id="po-edit-supplier"
+                value={String(editSupplierId)}
+                onChange={(v) => setEditSupplierId(Number(v))}
+                options={supplierOptions}
+                placeholder="Select…"
+              />
             </div>
             <div>
               <label className="text-xs font-medium text-slate-600">Expected delivery</label>

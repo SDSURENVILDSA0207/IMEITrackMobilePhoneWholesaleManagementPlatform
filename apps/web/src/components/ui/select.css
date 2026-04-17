@@ -1,0 +1,82 @@
+/* Custom Select — floating panel (not OS native). */
+
+.app-select-panel {
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(226 232 240 / 0.92);
+  background: linear-gradient(to bottom, rgb(252 252 253), rgb(248 250 252 / 0.98));
+  padding: 0.25rem;
+  box-shadow:
+    0 4px 6px -1px rgb(15 23 42 / 0.06),
+    0 12px 28px -8px rgb(15 23 42 / 0.14),
+    0 0 0 1px rgb(255 255 255 / 0.6) inset;
+  transform-origin: top center;
+  animation: app-select-panel-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-select-panel {
+    animation: none;
+  }
+}
+
+@keyframes app-select-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.app-select-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.65rem 0.5rem 0.5rem;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.35;
+  cursor: pointer;
+  background: transparent;
+  color: rgb(30 41 59);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.app-select-option:hover {
+  background-color: rgb(241 245 249 / 0.95);
+}
+
+.app-select-option[data-selected="true"] {
+  background-color: rgb(236 246 250 / 0.95);
+  color: rgb(34 84 109);
+}
+
+.app-select-option__check {
+  display: flex;
+  width: 1.125rem;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.app-select-trigger--button {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+  /* Inherits .app-select-trigger from index.css; override native-select background-image chevron */
+  background-image: none;
+  padding-right: 0.75rem;
+}

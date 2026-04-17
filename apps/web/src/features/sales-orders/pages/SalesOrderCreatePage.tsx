@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
@@ -20,6 +20,7 @@ import { SALES_ORDER_STATUSES } from "@/features/sales-orders/types";
 import { defaultSoCreateValues, soCreateFormToPayload } from "@/features/sales-orders/utils/soCreateMappers";
 import { canManageSalesOrders } from "@/features/sales-orders/utils/permissions";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { Select } from "@/components/ui/Select";
 import { formFieldInputClass, formFieldLabelClass } from "@/shared/lib/formFieldClasses";
 
 export default function SalesOrderCreatePage() {
@@ -33,6 +34,7 @@ export default function SalesOrderCreatePage() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SoCreateFormValues>({
@@ -54,6 +56,19 @@ export default function SalesOrderCreatePage() {
       cancelled = true;
     };
   }, []);
+
+  const customerOptions = useMemo(
+    () => [
+      { value: "0", label: "Select customer…" },
+      ...customers.map((c) => ({ value: String(c.id), label: c.business_name })),
+    ],
+    [customers],
+  );
+
+  const statusOptions = useMemo(
+    () => SALES_ORDER_STATUSES.map((s) => ({ value: s, label: SO_STATUS_LABELS[s] })),
+    [],
+  );
 
   if (!canManage) {
     return (
@@ -128,31 +143,32 @@ export default function SalesOrderCreatePage() {
               <label htmlFor="so-customer" className={formFieldLabelClass}>
                 Customer <span className="text-red-500">*</span>
               </label>
-              <select
-                id="so-customer"
-                className={formFieldInputClass}
-                {...register("customer_id", { valueAsNumber: true })}
-              >
-                <option value={0}>Select customer…</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.business_name}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="customer_id"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    id="so-customer"
+                    value={String(field.value)}
+                    onChange={(v) => field.onChange(Number(v))}
+                    options={customerOptions}
+                    placeholder="Select customer…"
+                  />
+                )}
+              />
               <FieldError>{errors.customer_id?.message}</FieldError>
             </div>
             <div>
               <label htmlFor="so-status" className={formFieldLabelClass}>
                 Initial status
               </label>
-              <select id="so-status" className={formFieldInputClass} {...register("status")}>
-                {SALES_ORDER_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {SO_STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select id="so-status" value={field.value} onChange={field.onChange} options={statusOptions} />
+                )}
+              />
             </div>
             <div>
               <label htmlFor="so-notes" className={formFieldLabelClass}>

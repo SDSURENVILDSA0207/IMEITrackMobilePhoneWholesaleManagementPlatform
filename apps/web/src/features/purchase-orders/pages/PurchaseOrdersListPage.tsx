@@ -23,9 +23,7 @@ import {
   CopilotQueryValue,
   parsePurchaseOrderStatusFromQuery,
 } from "@/features/assistant/copilotPageContext";
-
-const selectClass =
-  "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
+import { Select } from "@/components/ui/Select";
 
 export default function PurchaseOrdersListPage() {
   const { user } = useAuth();
@@ -110,6 +108,22 @@ export default function PurchaseOrdersListPage() {
     if (!sortRecent) return rows;
     return [...rows].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [rows, sortRecent]);
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: "All statuses" },
+      ...PO_STATUSES.map((s) => ({ value: s, label: PO_STATUS_LABELS[s] })),
+    ],
+    [],
+  );
+
+  const supplierOptions = useMemo(
+    () => [
+      { value: "", label: "All suppliers" },
+      ...suppliers.map((s) => ({ value: String(s.id), label: s.name })),
+    ],
+    [suppliers],
+  );
 
   const columns: DataTableColumn<PurchaseOrderDetailed>[] = [
     {
@@ -204,34 +218,32 @@ export default function PurchaseOrdersListPage() {
       <FilterPanel title="Filter purchase orders">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={`mt-1 min-w-[180px] ${selectClass}`}
-          >
-            <option value="">All statuses</option>
-            {PO_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {PO_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="po-filter-status" className="block text-xs font-medium text-slate-600">
+            Status
+          </label>
+          <div className="min-w-[180px]">
+            <Select
+              id="po-filter-status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={statusOptions}
+              placeholder="All statuses"
+            />
+          </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Supplier</label>
-          <select
-            value={supplierFilter}
-            onChange={(e) => setSupplierFilter(e.target.value)}
-            className={`mt-1 min-w-[200px] ${selectClass}`}
-          >
-            <option value="">All suppliers</option>
-            {suppliers.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="po-filter-supplier" className="block text-xs font-medium text-slate-600">
+            Supplier
+          </label>
+          <div className="min-w-[200px]">
+            <Select
+              id="po-filter-supplier"
+              value={supplierFilter}
+              onChange={setSupplierFilter}
+              options={supplierOptions}
+              placeholder="All suppliers"
+            />
+          </div>
         </div>
       </div>
       </FilterPanel>

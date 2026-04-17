@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
@@ -16,9 +16,8 @@ import type { ReturnRequestDetailed, ReturnRequestStatus } from "@/features/retu
 import { RETURN_REQUEST_STATUSES } from "@/features/returns/types";
 import { canUpdateReturnStatus } from "@/features/returns/utils/permissions";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { Select } from "@/components/ui/Select";
 import { formFieldInputClass } from "@/shared/lib/formFieldClasses";
-
-const selectClass = `${formFieldInputClass} max-w-xs`;
 
 function formatWhen(iso: string | null) {
   if (!iso) return "—";
@@ -51,6 +50,11 @@ export default function ReturnRequestDetailPage() {
   const [statusSaving, setStatusSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [statusErr, setStatusErr] = useState<string | null>(null);
+
+  const rmaStatusOptions = useMemo(
+    () => RETURN_REQUEST_STATUSES.map((s) => ({ value: s, label: RMA_STATUS_LABELS[s] })),
+    [],
+  );
 
   useEffect(() => {
     const state = location.state as { notice?: string } | null;
@@ -246,18 +250,14 @@ export default function ReturnRequestDetailPage() {
               <label className="mt-4 block text-xs font-medium text-slate-600" htmlFor="rma-status">
                 Status
               </label>
-              <select
-                id="rma-status"
-                className={selectClass}
-                value={statusDraft}
-                onChange={(e) => setStatusDraft(e.target.value as ReturnRequestStatus)}
-              >
-                {RETURN_REQUEST_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {RMA_STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              <div className="max-w-xs">
+                <Select
+                  id="rma-status"
+                  value={statusDraft}
+                  onChange={(v) => setStatusDraft(v as ReturnRequestStatus)}
+                  options={rmaStatusOptions}
+                />
+              </div>
 
               <label className="mt-4 block text-xs font-medium text-slate-600" htmlFor="resolution_notes">
                 Resolution notes

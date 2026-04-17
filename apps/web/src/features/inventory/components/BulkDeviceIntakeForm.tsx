@@ -1,5 +1,6 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
 
+import { Select } from "@/components/ui/Select";
 import { bulkAddDevicesToBatch } from "@/features/inventory/api";
 import { CONDITION_LABELS, DEVICE_STATUS_LABELS, LOCK_STATUS_LABELS } from "@/features/inventory/constants/labels";
 import type {
@@ -97,6 +98,32 @@ export function BulkDeviceIntakeForm({ batchId, productModels, onSuccess }: Bulk
     }
   }
 
+  const productModelOptions = useMemo(
+    () => [
+      { value: "", label: "Select…" },
+      ...productModels.map((m) => ({
+        value: String(m.id),
+        label: `${m.brand} ${m.model_name} (${m.storage}, ${m.color})`,
+      })),
+    ],
+    [productModels],
+  );
+
+  const conditionOptions = useMemo(
+    () => DEVICE_CONDITION_GRADES.map((g) => ({ value: g, label: CONDITION_LABELS[g] })),
+    [],
+  );
+
+  const lockOptions = useMemo(
+    () => DEVICE_LOCK_STATUSES.map((s) => ({ value: s, label: LOCK_STATUS_LABELS[s] })),
+    [],
+  );
+
+  const deviceStatusOptions = useMemo(
+    () => DEVICE_STATUSES.map((s) => ({ value: s, label: DEVICE_STATUS_LABELS[s] })),
+    [],
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 border-t border-slate-100 pt-6">
       <div>
@@ -130,33 +157,20 @@ export function BulkDeviceIntakeForm({ batchId, productModels, onSuccess }: Bulk
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="block text-xs font-medium text-slate-600">Product model</label>
-          <select
+          <Select
             value={productModelId}
-            onChange={(e) => setProductModelId(e.target.value)}
-            className={formFieldInputClass}
-            required
-          >
-            <option value="">Select…</option>
-            {productModels.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.brand} {m.model_name} ({m.storage}, {m.color})
-              </option>
-            ))}
-          </select>
+            onChange={setProductModelId}
+            options={productModelOptions}
+            placeholder="Select…"
+          />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600">Condition</label>
-          <select
+          <Select
             value={conditionGrade}
-            onChange={(e) => setConditionGrade(e.target.value as DeviceConditionGrade)}
-            className={formFieldInputClass}
-          >
-            {DEVICE_CONDITION_GRADES.map((g) => (
-              <option key={g} value={g}>
-                {CONDITION_LABELS[g]}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setConditionGrade(v as DeviceConditionGrade)}
+            options={conditionOptions}
+          />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600">Battery health %</label>
@@ -172,31 +186,19 @@ export function BulkDeviceIntakeForm({ batchId, productModels, onSuccess }: Bulk
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600">Lock status</label>
-          <select
+          <Select
             value={lockStatus}
-            onChange={(e) => setLockStatus(e.target.value as DeviceLockStatus)}
-            className={formFieldInputClass}
-          >
-            {DEVICE_LOCK_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {LOCK_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setLockStatus(v as DeviceLockStatus)}
+            options={lockOptions}
+          />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600">Device status</label>
-          <select
+          <Select
             value={deviceStatus}
-            onChange={(e) => setDeviceStatus(e.target.value as DeviceStatus)}
-            className={formFieldInputClass}
-          >
-            {DEVICE_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {DEVICE_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setDeviceStatus(v as DeviceStatus)}
+            options={deviceStatusOptions}
+          />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600">Purchase cost (optional)</label>

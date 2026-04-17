@@ -15,10 +15,9 @@ import { getSalesOrder } from "@/features/sales-orders/api";
 import type { SalesOrder, SalesOrderDetailed } from "@/features/sales-orders/types";
 import { canCreateReturnRequest } from "@/features/returns/utils/permissions";
 import { fetchEligibleSalesOrdersForRma } from "@/features/returns/utils/eligibleSalesOrders";
+import { Select } from "@/components/ui/Select";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 import { formFieldInputClass, formFieldLabelClass } from "@/shared/lib/formFieldClasses";
-
-const selectClass = `${formFieldInputClass} max-w-xl`;
 
 export default function ReturnRequestCreatePage() {
   const navigate = useNavigate();
@@ -123,6 +122,17 @@ export default function ReturnRequestCreatePage() {
     );
   }, [eligibleOrders, orderSearch]);
 
+  const orderSelectOptions = useMemo(() => {
+    const emptyLabel = ordersLoading ? "Loading orders…" : "Select a sales order…";
+    return [
+      { value: "", label: emptyLabel },
+      ...filteredOrders.map((o) => ({
+        value: String(o.id),
+        label: `${o.order_number} · #${o.id} · ${o.status}`,
+      })),
+    ];
+  }, [ordersLoading, filteredOrders]);
+
   if (!canCreate) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-amber-950">
@@ -206,27 +216,20 @@ export default function ReturnRequestCreatePage() {
             <label className={formFieldLabelClass} htmlFor="sales_order_id">
               Order
             </label>
-            <select
-              id="sales_order_id"
-              className={selectClass}
-              disabled={ordersLoading || filteredOrders.length === 0}
-              value={salesOrderId > 0 ? String(salesOrderId) : ""}
-              onChange={(e) => {
-                const raw = e.target.value;
-                const id = raw === "" ? 0 : Number(raw);
-                setValue("sales_order_id", id, { shouldValidate: true });
-                setValue("device_id", 0, { shouldValidate: true });
-              }}
-            >
-              <option value="">
-                {ordersLoading ? "Loading orders…" : "Select a sales order…"}
-              </option>
-              {filteredOrders.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.order_number} · #{o.id} · {o.status}
-                </option>
-              ))}
-            </select>
+            <div className="max-w-xl">
+              <Select
+                id="sales_order_id"
+                disabled={ordersLoading || filteredOrders.length === 0}
+                value={salesOrderId > 0 ? String(salesOrderId) : ""}
+                onChange={(raw) => {
+                  const id = raw === "" ? 0 : Number(raw);
+                  setValue("sales_order_id", id, { shouldValidate: true });
+                  setValue("device_id", 0, { shouldValidate: true });
+                }}
+                options={orderSelectOptions}
+                placeholder={ordersLoading ? "Loading orders…" : "Select a sales order…"}
+              />
+            </div>
             {errors.sales_order_id ? (
               <p className="mt-1 text-sm text-red-600">{errors.sales_order_id.message}</p>
             ) : null}

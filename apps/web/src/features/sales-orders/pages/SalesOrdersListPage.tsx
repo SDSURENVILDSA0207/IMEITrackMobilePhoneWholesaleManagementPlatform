@@ -23,9 +23,7 @@ import {
   CopilotQueryValue,
   parseSalesOrderStatusFromQuery,
 } from "@/features/assistant/copilotPageContext";
-
-const selectClass =
-  "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
+import { Select } from "@/components/ui/Select";
 
 export default function SalesOrdersListPage() {
   const { user } = useAuth();
@@ -111,6 +109,22 @@ export default function SalesOrdersListPage() {
     return [...rows].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [rows, sortRecent]);
 
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: "All statuses" },
+      ...SALES_ORDER_STATUSES.map((s) => ({ value: s, label: SO_STATUS_LABELS[s] })),
+    ],
+    [],
+  );
+
+  const customerOptions = useMemo(
+    () => [
+      { value: "", label: "All customers" },
+      ...customers.map((c) => ({ value: String(c.id), label: c.business_name })),
+    ],
+    [customers],
+  );
+
   const columns: DataTableColumn<SalesOrder>[] = [
     {
       id: "order",
@@ -193,34 +207,32 @@ export default function SalesOrdersListPage() {
       <FilterPanel title="Filter sales orders">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={`mt-1 min-w-[180px] ${selectClass}`}
-          >
-            <option value="">All statuses</option>
-            {SALES_ORDER_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {SO_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="so-filter-status" className="block text-xs font-medium text-slate-600">
+            Status
+          </label>
+          <div className="min-w-[180px]">
+            <Select
+              id="so-filter-status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={statusOptions}
+              placeholder="All statuses"
+            />
+          </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Customer</label>
-          <select
-            value={customerFilter}
-            onChange={(e) => setCustomerFilter(e.target.value)}
-            className={`mt-1 min-w-[220px] ${selectClass}`}
-          >
-            <option value="">All customers</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.business_name}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="so-filter-customer" className="block text-xs font-medium text-slate-600">
+            Customer
+          </label>
+          <div className="min-w-[220px]">
+            <Select
+              id="so-filter-customer"
+              value={customerFilter}
+              onChange={setCustomerFilter}
+              options={customerOptions}
+              placeholder="All customers"
+            />
+          </div>
         </div>
       </div>
       </FilterPanel>

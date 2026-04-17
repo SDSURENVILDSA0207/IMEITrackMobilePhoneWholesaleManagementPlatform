@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
@@ -19,10 +19,8 @@ import type { SalesOrderItemDetailed, SalesOrderDetailed, SalesOrderStatus } fro
 import { SALES_ORDER_STATUSES } from "@/features/sales-orders/types";
 import { canManageSalesOrders } from "@/features/sales-orders/utils/permissions";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
+import { Select } from "@/components/ui/Select";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
-
-const selectClass =
-  "mt-1 w-full max-w-xs rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
 
 export default function SalesOrderDetailPage() {
   const { salesOrderId } = useParams<{ salesOrderId: string }>();
@@ -42,6 +40,11 @@ export default function SalesOrderDetailPage() {
   const [statusSaving, setStatusSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const [statusErr, setStatusErr] = useState<string | null>(null);
+
+  const soStatusOptions = useMemo(
+    () => SALES_ORDER_STATUSES.map((s) => ({ value: s, label: SO_STATUS_LABELS[s] })),
+    [],
+  );
 
   const refresh = useCallback(async () => {
     if (Number.isNaN(id) || id < 1) return;
@@ -194,18 +197,14 @@ export default function SalesOrderDetailPage() {
                   <label htmlFor="so-status" className="text-xs font-medium text-slate-600">
                     Status
                   </label>
-                  <select
-                    id="so-status"
-                    value={statusDraft}
-                    onChange={(e) => setStatusDraft(e.target.value as SalesOrderStatus)}
-                    className={selectClass}
-                  >
-                    {SALES_ORDER_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {SO_STATUS_LABELS[s]}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="max-w-xs">
+                    <Select
+                      id="so-status"
+                      value={statusDraft}
+                      onChange={(v) => setStatusDraft(v as SalesOrderStatus)}
+                      options={soStatusOptions}
+                    />
+                  </div>
                 </div>
                 <Button type="submit" variant="secondary" disabled={statusSaving || statusDraft === order.status}>
                   {statusSaving ? "Saving…" : "Apply status"}

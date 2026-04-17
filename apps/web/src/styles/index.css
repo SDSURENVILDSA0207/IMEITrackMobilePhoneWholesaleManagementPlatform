@@ -100,4 +100,73 @@ body {
     @apply hover:bg-brand-50 hover:text-brand-600;
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600/25 focus-visible:ring-offset-1;
   }
+
+  /**
+   * Premium native select trigger — consistent across the app.
+   * (Dropdown list appearance is controlled by the OS; options styled where supported.)
+   */
+  .app-select-trigger {
+    @apply mt-1 w-full min-w-0 max-w-full appearance-none rounded-xl border border-slate-200/90 px-3.5 py-2.5 pr-10 text-left text-sm font-medium leading-snug text-slate-800 outline-none;
+    background-color: rgb(252 252 253);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.65rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 4px 14px -6px rgba(15, 23, 42, 0.08);
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.18s ease,
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .app-select-trigger:hover:not(:disabled) {
+    @apply border-slate-300/85 bg-white;
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.05),
+      0 8px 22px -8px rgba(15, 23, 42, 0.1);
+  }
+
+  .app-select-trigger:focus {
+    @apply border-brand-500/80 bg-white;
+    box-shadow:
+      0 0 0 2px rgba(42, 103, 134, 0.14),
+      0 2px 6px rgba(15, 23, 42, 0.06),
+      0 12px 28px -10px rgba(34, 84, 109, 0.16);
+  }
+
+  .app-select-trigger:disabled {
+    @apply cursor-not-allowed bg-slate-50/95 text-slate-500 opacity-90;
+    box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+  }
+
+  .app-select-trigger:active:not(:disabled) {
+    transform: scale(0.998);
+  }
+
+  select.app-select-trigger option {
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    padding: 0.5rem 0.75rem;
+    background-color: #fafbfc;
+    color: rgb(15 23 42);
+  }
+
+  select.app-select-trigger option[value=""] {
+    color: rgb(100 116 139);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-select-trigger {
+    transition: border-color 0.1s ease, background-color 0.1s ease;
+  }
+
+  .app-select-trigger:active:not(:disabled) {
+    transform: none;
+  }
 }

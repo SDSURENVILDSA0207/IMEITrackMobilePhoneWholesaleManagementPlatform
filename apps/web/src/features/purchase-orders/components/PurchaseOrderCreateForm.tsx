@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FormEventHandler } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useMemo } from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 
 import { useConfirm } from "@/components/ui/confirm/useConfirm";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,7 @@ import type { PurchaseOrderDetailed } from "@/features/purchase-orders/types";
 import { PO_STATUSES } from "@/features/purchase-orders/types";
 import { defaultPoItemRow, defaultPoCreateFormValues, poCreateFormToPayload } from "@/features/purchase-orders/utils/poCreateMappers";
 import type { Supplier } from "@/features/suppliers/types";
+import { Select } from "@/components/ui/Select";
 import { extractApiErrorMessage } from "@/shared/lib/apiError";
 
 const inputClass =
@@ -40,6 +42,19 @@ export function PurchaseOrderCreateForm({ suppliers, onCancel, onError, onSucces
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
+
+  const supplierOptions = useMemo(
+    () => [
+      { value: "0", label: "Select supplier…" },
+      ...suppliers.map((s) => ({ value: String(s.id), label: s.name })),
+    ],
+    [suppliers],
+  );
+
+  const poStatusOptions = useMemo(
+    () => PO_STATUSES.map((s) => ({ value: s, label: PO_STATUS_LABELS[s] })),
+    [],
+  );
 
   const submit: FormEventHandler<HTMLFormElement> = (e) => {
     void handleSubmit(async (values) => {
@@ -70,31 +85,32 @@ export function PurchaseOrderCreateForm({ suppliers, onCancel, onError, onSucces
           <label htmlFor="po-supplier" className={labelClass}>
             Supplier <span className="text-red-500">*</span>
           </label>
-          <select
-            id="po-supplier"
-            className={`mt-1 ${inputClass}`}
-            {...register("supplier_id", { valueAsNumber: true })}
-          >
-            <option value={0}>Select supplier…</option>
-            {suppliers.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="supplier_id"
+            control={control}
+            render={({ field }) => (
+              <Select
+                id="po-supplier"
+                value={String(field.value)}
+                onChange={(v) => field.onChange(Number(v))}
+                options={supplierOptions}
+                placeholder="Select supplier…"
+              />
+            )}
+          />
           <FieldError>{errors.supplier_id?.message}</FieldError>
         </div>
         <div>
           <label htmlFor="po-status" className={labelClass}>
             Initial status
           </label>
-          <select id="po-status" className={`mt-1 ${inputClass}`} {...register("status")}>
-            {PO_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {PO_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Select id="po-status" value={field.value} onChange={field.onChange} options={poStatusOptions} />
+            )}
+          />
         </div>
         <div>
           <label htmlFor="po-eta" className={labelClass}>

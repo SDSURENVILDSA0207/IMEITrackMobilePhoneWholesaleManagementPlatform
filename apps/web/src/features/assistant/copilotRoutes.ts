@@ -17,7 +17,7 @@ export function copilotOpenedSummary(target: string): string {
 
 /** Short confirmation line for in-chat navigation, including common query-driven views. */
 export function copilotNavigationSummary(pathname: string, query: Record<string, string>): string {
-  const label = COPILOT_ROUTE_LABELS[pathname] ?? pathname.replace(/^\//, "") || "page";
+  const label = COPILOT_ROUTE_LABELS[pathname] ?? (pathname.replace(/^\//, "") || "page");
   if (!query || Object.keys(query).length === 0) {
     return `Opened ${label}`;
   }

@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FormEventHandler } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 import {
   type SupplierFormValues,
@@ -11,6 +12,7 @@ import { Card } from "@/components/ui/Card";
 import { FieldError } from "@/components/ui/FieldError";
 import { Input, TextArea } from "@/components/ui/Input";
 import { SUPPLIER_TYPE_LABELS, SUPPLIER_TYPES } from "@/features/suppliers/types";
+import { Select } from "@/components/ui/Select";
 import { formFieldLabelClass } from "@/shared/lib/formFieldClasses";
 
 type SupplierFormProps = {
@@ -32,6 +34,7 @@ export function SupplierForm({
 }: SupplierFormProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SupplierFormValues>({
@@ -47,6 +50,11 @@ export function SupplierForm({
 
   const busy = isSubmitting || disabled;
   const primary = submitLabel ?? (mode === "create" ? "Create supplier" : "Save changes");
+
+  const supplierTypeOptions = useMemo(
+    () => SUPPLIER_TYPES.map((type) => ({ value: type, label: SUPPLIER_TYPE_LABELS[type] })),
+    [],
+  );
 
   return (
     <form onSubmit={submit} className="space-y-8">
@@ -85,18 +93,19 @@ export function SupplierForm({
           <label htmlFor="supplier-type" className={formFieldLabelClass}>
             Supplier type
           </label>
-          <select
-            id="supplier-type"
-            className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15"
-            {...register("supplier_type")}
-            disabled={busy}
-          >
-            {SUPPLIER_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {SUPPLIER_TYPE_LABELS[type]}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="supplier_type"
+            control={control}
+            render={({ field }) => (
+              <Select
+                id="supplier-type"
+                value={field.value}
+                onChange={field.onChange}
+                options={supplierTypeOptions}
+                disabled={busy}
+              />
+            )}
+          />
         </div>
 
         <div className="md:col-span-2">

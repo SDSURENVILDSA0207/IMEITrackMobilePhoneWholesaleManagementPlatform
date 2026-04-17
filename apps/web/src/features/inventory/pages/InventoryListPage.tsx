@@ -19,11 +19,9 @@ import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
-import { extractApiErrorMessage } from "@/shared/lib/apiError";
 import { CopilotQueryKey, CopilotQueryValue } from "@/features/assistant/copilotPageContext";
-
-const selectClass =
-  "rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-600/15";
+import { extractApiErrorMessage } from "@/shared/lib/apiError";
+import { Select } from "@/components/ui/Select";
 
 export default function InventoryListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,6 +46,28 @@ export default function InventoryListPage() {
   const [imeiError, setImeiError] = useState<string | null>(null);
 
   const [drawerId, setDrawerId] = useState<number | null>(null);
+
+  const conditionGradeOptions = useMemo(
+    () => [
+      { value: "", label: "All grades" },
+      ...DEVICE_CONDITION_GRADES.map((g) => ({ value: g, label: CONDITION_LABELS[g] })),
+    ],
+    [],
+  );
+  const lockStatusOptions = useMemo(
+    () => [
+      { value: "", label: "All lock states" },
+      ...DEVICE_LOCK_STATUSES.map((s) => ({ value: s, label: LOCK_STATUS_LABELS[s] })),
+    ],
+    [],
+  );
+  const deviceStatusOptions = useMemo(
+    () => [
+      { value: "", label: "All statuses" },
+      ...DEVICE_STATUSES.map((s) => ({ value: s, label: DEVICE_STATUS_LABELS[s] })),
+    ],
+    [],
+  );
 
   const loadDevices = useCallback(async () => {
     setLoading(true);
@@ -266,45 +286,34 @@ export default function InventoryListPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Condition grade</label>
-            <select
+            <label htmlFor="inv-condition" className="block text-xs font-medium text-slate-600">
+              Condition grade
+            </label>
+            <Select
+              id="inv-condition"
               value={conditionGrade}
-              onChange={(e) => setConditionGrade(e.target.value)}
-              className={`mt-1 w-full ${selectClass}`}
-            >
-              <option value="">All grades</option>
-              {DEVICE_CONDITION_GRADES.map((g) => (
-                <option key={g} value={g}>
-                  {CONDITION_LABELS[g]}
-                </option>
-              ))}
-            </select>
+              onChange={setConditionGrade}
+              options={conditionGradeOptions}
+              placeholder="All grades"
+            />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Lock status</label>
-            <select value={lockStatus} onChange={(e) => setLockStatus(e.target.value)} className={`mt-1 w-full ${selectClass}`}>
-              <option value="">All lock states</option>
-              {DEVICE_LOCK_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {LOCK_STATUS_LABELS[s]}
-                </option>
-              ))}
-            </select>
+            <label htmlFor="inv-lock" className="block text-xs font-medium text-slate-600">
+              Lock status
+            </label>
+            <Select id="inv-lock" value={lockStatus} onChange={setLockStatus} options={lockStatusOptions} placeholder="All lock states" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Status</label>
-            <select
+            <label htmlFor="inv-device-status" className="block text-xs font-medium text-slate-600">
+              Status
+            </label>
+            <Select
+              id="inv-device-status"
               value={deviceStatus}
-              onChange={(e) => setDeviceStatus(e.target.value)}
-              className={`mt-1 w-full ${selectClass}`}
-            >
-              <option value="">All statuses</option>
-              {DEVICE_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {DEVICE_STATUS_LABELS[s]}
-                </option>
-              ))}
-            </select>
+              onChange={setDeviceStatus}
+              options={deviceStatusOptions}
+              placeholder="All statuses"
+            />
           </div>
         </div>
       </FilterPanel>
