@@ -12,12 +12,10 @@ export function DashboardLayout() {
   const { pathname } = useLocation();
   const title = getDashboardTitle(pathname);
   const navMatch = getNavMatchForPath(pathname);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("dashboard.sidebar.collapsed");
-    if (saved) setSidebarCollapsed(saved === "1");
-  }, []);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("dashboard.sidebar.collapsed") === "1";
+  });
 
   useEffect(() => {
     window.localStorage.setItem("dashboard.sidebar.collapsed", sidebarCollapsed ? "1" : "0");

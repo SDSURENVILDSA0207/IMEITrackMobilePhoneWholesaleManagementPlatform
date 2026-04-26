@@ -12,7 +12,7 @@ import { canManagePurchaseOrders } from "@/features/purchase-orders/utils/permis
 import { listSuppliers } from "@/features/suppliers/api";
 import type { Supplier } from "@/features/suppliers/types";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
-import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { linkPrimaryButtonClassName } from "@/components/ui/linkPrimaryButtonClassName";
 import { textLinkNeutralClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";

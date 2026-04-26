@@ -9,7 +9,7 @@ import { RMA_STATUS_LABELS } from "@/features/returns/constants/statusLabels";
 import type { ReturnRequestDetailed, ReturnRequestStatus } from "@/features/returns/types";
 import { RETURN_REQUEST_STATUSES } from "@/features/returns/types";
 import { canCreateReturnRequest } from "@/features/returns/utils/permissions";
-import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { linkPrimaryButtonClassName } from "@/components/ui/linkPrimaryButtonClassName";
 import { textLinkClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";

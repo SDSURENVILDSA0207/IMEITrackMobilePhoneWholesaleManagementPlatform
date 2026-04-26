@@ -7,7 +7,7 @@ import type { Customer } from "@/features/customers/types";
 import { canManageCustomers } from "@/features/customers/utils/permissions";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
-import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { linkPrimaryButtonClassName } from "@/components/ui/linkPrimaryButtonClassName";
 import { textLinkChipClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";

@@ -12,7 +12,7 @@ import type { SalesOrder } from "@/features/sales-orders/types";
 import { SALES_ORDER_STATUSES } from "@/features/sales-orders/types";
 import { canManageSalesOrders } from "@/features/sales-orders/utils/permissions";
 import { formatMoney } from "@/features/customers/utils/formatMoney";
-import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { linkPrimaryButtonClassName } from "@/components/ui/linkPrimaryButtonClassName";
 import { textLinkNeutralClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";

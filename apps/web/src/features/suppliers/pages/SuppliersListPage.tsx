@@ -7,7 +7,7 @@ import type { Supplier } from "@/features/suppliers/types";
 import { SUPPLIER_TYPE_LABELS } from "@/features/suppliers/types";
 import { canManageSuppliers } from "@/features/suppliers/utils/permissions";
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
-import { linkPrimaryButtonClassName } from "@/components/ui/Button";
+import { linkPrimaryButtonClassName } from "@/components/ui/linkPrimaryButtonClassName";
 import { textLinkChipClass } from "@/components/ui/linkStyles";
 import { FilterPanel } from "@/components/ui/FilterPanel";
 import { PageContainer } from "@/components/ui/PageContainer";
