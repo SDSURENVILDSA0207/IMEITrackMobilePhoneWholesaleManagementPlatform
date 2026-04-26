@@ -31,7 +31,7 @@
 
 IMEITrack models the lifecycle of mobile devices from **supplier purchase orders** through **receiving batches**, **IMEI registration**, **customer sales**, and **return handling**. A unified **analytics dashboard** surfaces KPIs, recent orders, low-stock signals, and distribution views for returns and inventory condition grades.
 
-The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/api`) and a **React** single-page app (`@imeitrack/web` in `apps/web`), with shared packages (`@imeitrack/config`, `@imeitrack/types`, `@imeitrack/ui`) under `packages/`.
+The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/api`, installable as **`imeitrack-api`** from `pyproject.toml`) and a **React** single-page app (`@imeitrack/web` in `apps/web`). Workspace packages under `packages/` (`@imeitrack/config`, `@imeitrack/types`, `@imeitrack/ui`) are available for shared code as the monorepo grows.
 
 ---
 
@@ -58,8 +58,8 @@ The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/a
 
 | Layer | Technologies |
 |-------|----------------|
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router, React Hook Form, Zod, Axios |
-| **Backend** | Python 3, FastAPI, SQLAlchemy 2, Alembic, Pydantic Settings |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, Redux Toolkit, React Router, React Hook Form, Zod, Axios, Lucide (icons) |
+| **Backend** | Python 3, FastAPI, SQLAlchemy 2, Alembic, Pydantic Settings; package metadata in `pyproject.toml` (setuptools build backend) |
 | **Database** | PostgreSQL 16 |
 | **Auth** | JWT (python-jose), Passlib (bcrypt) |
 | **Tooling** | pnpm 10 workspaces (`packageManager` in root `package.json`), ESLint, `concurrently` for API + web dev |
@@ -72,22 +72,25 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
 
 ```text
 .
+├── .github/
+│   └── workflows/           # GitHub Actions CI (web lint/build, API install + compileall)
 ├── apps/
-│   ├── api/                 # FastAPI application
+│   ├── api/                 # FastAPI application; pip-installable (see pyproject.toml)
 │   │   ├── app/             # Main package: routes, models, services, schemas
 │   │   ├── alembic/         # Database migrations
-│   │   ├── scripts/         # e.g. seed.py for demo data
+│   │   ├── scripts/         # e.g. seed for demo data
+│   │   ├── pyproject.toml   # Project metadata, dependencies, setuptools package discovery
 │   │   ├── requirements.txt
 │   │   └── .env.example
-│   └── web/                 # React + Vite SPA
+│   └── web/                 # React + Vite SPA (@imeitrack/web)
 │       └── src/
 │           ├── app/         # Router, layouts, navigation, providers
 │           ├── components/  # Shared UI (tables, toast, etc.)
 │           ├── features/    # Domain modules (auth, inventory, orders, …)
 │           └── shared/      # API client, hooks, utilities
-├── packages/                # Shared workspace packages: @imeitrack/config, @imeitrack/types, @imeitrack/ui
+├── packages/                # @imeitrack/config, @imeitrack/types, @imeitrack/ui
 ├── infra/
-│   └── docker/              # docker-compose for Postgres + pgAdmin
+│   └── docker/              # docker-compose for Postgres, full stack, or dev-only
 ├── docs/                    # architecture.md, api-contracts.md, deployment.md
 ├── package.json             # Root scripts: dev, dev:web, dev:api, build, lint, typecheck, seed
 ├── pnpm-workspace.yaml
@@ -98,10 +101,11 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
 
 ## Prerequisites
 
-- **Node.js** 20+ (or compatible) and **pnpm 10+** (declared in root `package.json` as `packageManager`; use [Corepack](https://nodejs.org/api/corepack.html): `corepack enable` then `pnpm install`)
-- **Python** 3.10+ (3.11+ recommended)
+- **Node.js** 20+ locally (or compatible); **CI** currently uses Node **22** for the web build
+- **pnpm 10+** (declared in root `package.json` as `packageManager`; use [Corepack](https://nodejs.org/api/corepack.html): `corepack enable` then `pnpm install`)
+- **Python** 3.10+ (3.12 is used in CI for the API job); 3.11+ recommended for local work
 - **PostgreSQL** 16 (or use the provided Docker Compose file)
-- **pip** and a Python virtual environment for the API
+- **pip** 24+ recommended for `pip install -e apps/api` (editable install uses **setuptools** via `pyproject.toml`); a virtual environment is recommended for the API
 
 ---
 
@@ -165,11 +169,22 @@ Run from the **repository root** (after `pnpm install`):
    source .venv/bin/activate   # Windows: .venv\Scripts\activate
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies** (pick one approach):
+
+   **A. Classic (from `apps/api`, matches many tutorials):**
 
    ```bash
    pip install -r requirements.txt
    ```
+
+   **B. Editable install (same as CI):** with your venv **activated**, run from the **repository root**:
+
+   ```bash
+   python3 -m pip install --upgrade pip
+   pip install -e apps/api
+   ```
+
+   This installs the `imeitrack-api` package and its `pyproject.toml` dependencies into your environment.
 
 3. **Environment file**:
 
@@ -352,8 +367,8 @@ Exact permissions are enforced in the API and mirrored in the UI (e.g. purchase 
 
 [GitHub Actions](.github/workflows/ci.yml) runs on every push to `main` and on pull requests:
 
-- **web** — `pnpm install`, then `lint` and `build` for `@imeitrack/web` (Node 22, pnpm from the workflow).
-- **api** — `pip install -e apps/api`, then `python -m compileall` on `apps/api/app` (Python 3.12).
+- **web** — checks out the repo, sets up pnpm, **Node 22**, runs `pnpm install`, then `pnpm --filter @imeitrack/web lint` and `pnpm --filter @imeitrack/web build`.
+- **api** — **Python 3.12**; upgrades `pip`, runs **`pip install -e apps/api`** (requires `[build-system]` + setuptools in `apps/api/pyproject.toml`), then **`python -m compileall apps/api/app`** to catch syntax errors in the application package.
 
 ---
 
