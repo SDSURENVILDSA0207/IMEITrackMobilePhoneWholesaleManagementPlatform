@@ -11,6 +11,7 @@
 - [Tech stack](#tech-stack)
 - [Repository structure](#repository-structure)
 - [Prerequisites](#prerequisites)
+- [Root scripts](#root-scripts)
 - [Quick start](#quick-start)
 - [Backend setup](#backend-setup)
 - [Frontend setup](#frontend-setup)
@@ -19,6 +20,7 @@
 - [Database migrations](#database-migrations)
 - [Seeding sample data](#seeding-sample-data)
 - [User roles](#user-roles)
+- [Continuous integration](#continuous-integration)
 - [Screenshots](#screenshots)
 - [Future improvements](#future-improvements)
 - [License](#license)
@@ -29,7 +31,7 @@
 
 IMEITrack models the lifecycle of mobile devices from **supplier purchase orders** through **receiving batches**, **IMEI registration**, **customer sales**, and **return handling**. A unified **analytics dashboard** surfaces KPIs, recent orders, low-stock signals, and distribution views for returns and inventory condition grades.
 
-The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/api`) and a **React** single-page app (`apps/web`), with optional shared packages under `packages/`.
+The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/api`) and a **React** single-page app (`@imeitrack/web` in `apps/web`), with shared packages (`@imeitrack/config`, `@imeitrack/types`, `@imeitrack/ui`) under `packages/`.
 
 ---
 
@@ -44,7 +46,10 @@ The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/a
 | **Inventory** | Device records with IMEI, condition grade, lock status, batch linkage, filters |
 | **Sales** | Sales orders, customer assignment, device allocation with pricing, order status |
 | **Returns / RMA** | Return requests tied to shipped/delivered orders and sold devices, status workflow |
+| **Inventory intake** | Batch-oriented device receiving workflows (API module `inventory_intake`) |
 | **Analytics** | KPI cards, recent PO/SO lists, return and condition summaries, low-stock watchlist |
+| **Copilot (insights)** | Rule-based operations signals: low stock, slow movers, trends, and alert-style summaries (`/api/v1/copilot/...`) |
+| **Assistant** | In-app assistant with role-aware suggested prompts and chat (`/api/v1/assistant/...`); pluggable `ASSISTANT_PROVIDER` (default: grounded) |
 | **UX** | Toasts, confirmations, loading states, responsive dashboard shell |
 
 ---
@@ -57,7 +62,7 @@ The codebase is organized as a **pnpm monorepo**: a **FastAPI** backend (`apps/a
 | **Backend** | Python 3, FastAPI, SQLAlchemy 2, Alembic, Pydantic Settings |
 | **Database** | PostgreSQL 16 |
 | **Auth** | JWT (python-jose), Passlib (bcrypt) |
-| **Tooling** | pnpm workspaces, ESLint, concurrent dev scripts |
+| **Tooling** | pnpm 10 workspaces (`packageManager` in root `package.json`), ESLint, `concurrently` for API + web dev |
 
 Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, optional pgAdmin, and a **full-stack** `docker-compose.yml` (Postgres + API + nginx SPA). Dockerfiles live under `apps/api/` and `apps/web/`.
 
@@ -80,11 +85,11 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
 │           ├── components/  # Shared UI (tables, toast, etc.)
 │           ├── features/    # Domain modules (auth, inventory, orders, …)
 │           └── shared/      # API client, hooks, utilities
-├── packages/                # Optional shared libraries (config, types, ui)
+├── packages/                # Shared workspace packages: @imeitrack/config, @imeitrack/types, @imeitrack/ui
 ├── infra/
 │   └── docker/              # docker-compose for Postgres + pgAdmin
-├── docs/                    # Architecture notes and API contracts
-├── package.json             # Root scripts (dev, build, seed)
+├── docs/                    # architecture.md, api-contracts.md, deployment.md
+├── package.json             # Root scripts: dev, dev:web, dev:api, build, lint, typecheck, seed
 ├── pnpm-workspace.yaml
 └── README.md
 ```
@@ -93,10 +98,29 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
 
 ## Prerequisites
 
-- **Node.js** 20+ (or compatible) and **pnpm** (see `packageManager` in `package.json`)
+- **Node.js** 20+ (or compatible) and **pnpm 10+** (declared in root `package.json` as `packageManager`; use [Corepack](https://nodejs.org/api/corepack.html): `corepack enable` then `pnpm install`)
 - **Python** 3.10+ (3.11+ recommended)
 - **PostgreSQL** 16 (or use the provided Docker Compose file)
 - **pip** and a Python virtual environment for the API
+
+---
+
+## Root scripts
+
+Run from the **repository root** (after `pnpm install`):
+
+| Script | What it does |
+|--------|----------------|
+| `pnpm dev` | Vite dev server for `@imeitrack/web` **and** API via `uvicorn` (`apps.api.app.main:app` on port 8000) |
+| `pnpm dev:web` | Frontend only |
+| `pnpm dev:api` | API only (same `uvicorn` entrypoint as `dev`) |
+| `pnpm build` | `pnpm -r build` — builds all workspace packages that define `build` |
+| `pnpm lint` | ESLint for the web app |
+| `pnpm typecheck` | `tsc --noEmit` for the web app |
+| `pnpm seed:api` | Run `scripts.seed` under `apps/api` (idempotent) |
+| `pnpm seed:api:force` | Wipe app tables and reseed |
+
+> Root scripts use **pnpm** (`pnpm --filter @imeitrack/web …`). If you use npm at the root, those filter-based commands will not work as written—use pnpm, or run the web and API processes manually (see below).
 
 ---
 
@@ -116,14 +140,14 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
 
 3. **Configure and migrate the API** (see [Backend setup](#backend-setup) and [Database migrations](#database-migrations)).
 
-4. **Run API + web together**:
+4. **Run API + web together** (from repo root, with `pnpm`):
 
    ```bash
    pnpm dev
    ```
 
    - Frontend: Vite dev server (default `http://localhost:5173`)
-   - API: Uvicorn (default `http://localhost:8000`)
+   - API: Uvicorn (default `http://localhost:8000`, module `apps.api.app.main:app` — run the command from the **repo root** so Python can resolve the `apps.*` package path)
 
 5. **Default login** (after seeding or manual registration):  
    `admin@imeitrack.app` / `Admin123!`
@@ -163,14 +187,14 @@ Infrastructure is defined under `infra/docker/`: Postgres-only dev compose, opti
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
-   The root script `pnpm dev` runs the API with `uvicorn` from the repo root using the `apps.api.app.main` module path—ensure your Python environment can import that layout, or use the `cd apps/api` command above for the most reliable local run.
+   The root script `pnpm dev` runs the API with `uvicorn` from the **repo root** using `python3 -m uvicorn apps.api.app.main:app` (same as `pnpm dev:api`). Running from `apps/api` with `uvicorn app.main:app` is an alternative; keep **one** working layout so imports and `PYTHONPATH` stay consistent.
 
 5. **API health** (after migrations):
 
    - `GET /api/v1/health/live`
    - `GET /api/v1/health/ready`
 
-Interactive docs: `http://localhost:8000/docs` (when FastAPI docs are enabled).
+Interactive docs: `http://localhost:8000/api/v1/docs` (OpenAPI is mounted under the API v1 prefix).
 
 ---
 
@@ -218,8 +242,10 @@ Interactive docs: `http://localhost:8000/docs` (when FastAPI docs are enabled).
 | `JWT_SECRET_KEY` | **Required in production** — strong secret for signing tokens |
 | `JWT_ALGORITHM` | Default: `HS256` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime |
+| `ASSISTANT_PROVIDER` | Assistant backend: default `grounded` (in-app, data-aware behavior); set if you add external providers |
+| `ASSISTANT_API_KEY` | Optional key for a future external LLM provider (unused when `grounded`) |
 
-See `apps/api/.env.example` for a starting template.
+See `apps/api/.env.example` for a starting template. For production, compare `apps/api/.env.production.example` and [`docs/deployment.md`](docs/deployment.md).
 
 ### Frontend (`apps/web/.env.local` — optional)
 
@@ -250,7 +276,7 @@ The legacy **Postgres-only** compose file remains at `infra/docker/docker-compos
 
 ## Database migrations
 
-Migrations are managed with **Alembic** from `apps/api`.
+Migrations are managed with **Alembic** from `apps/api`. In **development** (`APP_ENV=development`), the API also runs `Base.metadata.create_all()` on startup so a fresh Postgres instance gets tables without an initial migration. For **production**, rely on Alembic and avoid depending on that startup DDL.
 
 1. Ensure PostgreSQL is running and `DATABASE_URL` in `.env` is correct.
 
@@ -271,7 +297,7 @@ Migrations are managed with **Alembic** from `apps/api`.
    alembic downgrade -1
    ```
 
-> **Note:** If the `alembic/versions/` folder has no migration files yet, run `alembic revision --autogenerate` once with your SQLAlchemy models loaded so the schema matches the application.
+> **Note:** If `alembic/versions/` has no revision files yet, either generate an initial migration with `alembic revision --autogenerate` (models loaded) or, for local dev only, depend on `create_all` until you add migrations. Production deployments should have real Alembic revisions in version control.
 
 ---
 
@@ -322,6 +348,15 @@ Exact permissions are enforced in the API and mirrored in the UI (e.g. purchase 
 
 ---
 
+## Continuous integration
+
+[GitHub Actions](.github/workflows/ci.yml) runs on every push to `main` and on pull requests:
+
+- **web** — `pnpm install`, then `lint` and `build` for `@imeitrack/web` (Node 22, pnpm from the workflow).
+- **api** — `pip install -e apps/api`, then `python -m compileall` on `apps/api/app` (Python 3.12).
+
+---
+
 ## Screenshots
 
 _Add portfolio-ready screenshots here (e.g. under `docs/screenshots/`). Suggested captures:_
@@ -332,6 +367,7 @@ _Add portfolio-ready screenshots here (e.g. under `docs/screenshots/`). Suggeste
 | 2 | **Inventory** — device table with IMEI, grade, and status |
 | 3 | **Sales order** — line items, device assignment, totals |
 | 4 | **Returns / RMA** — return list and detail with status workflow |
+| 5 | **Copilot / Assistant** — insights panel and in-app assistant (if visible in your build) |
 
 _Example Markdown once images exist:_
 
@@ -342,7 +378,7 @@ _Example Markdown once images exist:_
 ## Future improvements
 
 - **Automated tests** — expand API and E2E coverage for critical flows (orders, IMEI uniqueness, RMA rules).
-- **CI/CD** — lint, typecheck, and migration checks on pull requests.
+- **CI** — extend the existing pipeline with typecheck, API tests, and migration validation on pull requests.
 - **Observability** — structured logging, metrics, and tracing for production deployments.
 - **Mobile / PWA** — lightweight warehouse scanning or approval workflows.
 - **Multi-tenant** — optional organization boundaries for multi-branch operations.
